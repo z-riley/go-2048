@@ -44,13 +44,17 @@ func main() {
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyUp:
-			return nil
+			grid.Move(dirUp)
 		case tcell.KeyDown:
-			return nil
+			grid.Move(dirDown)
+		case tcell.KeyLeft:
+			grid.Move(dirLeft)
+		case tcell.KeyRight:
+			grid.Move(dirRight)
 		case tcell.KeyCtrlR:
 			grid.ResetGrid()
-			textView.SetText(grid.Render(true))
 		}
+		textView.SetText(grid.Render(true))
 		return event
 	})
 

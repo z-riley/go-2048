@@ -88,7 +88,8 @@ func TestMove_noCombines(t *testing.T) {
 			}},
 		},
 	} {
-		got := tc.input.Move(tc.direction)
+		got := tc.input.clone()
+		got.Move(tc.direction)
 		if !reflect.DeepEqual(tc.expected, got) {
 			t.Errorf("Expected:\n<%s>\nGot:\n<%s>", tc.expected.debug(), got.debug())
 		}
@@ -118,8 +119,24 @@ func TestMove_combineTiles(t *testing.T) {
 				{Tile{0}, Tile{0}, Tile{0}, Tile{0}},
 			}},
 		},
+		{
+			input: &Grid{tiles: [4][4]Tile{
+				{Tile{0}, Tile{0}, Tile{0}, Tile{0}},
+				{Tile{0}, Tile{0}, Tile{0}, Tile{0}},
+				{Tile{0}, Tile{0}, Tile{2}, Tile{0}},
+				{Tile{2}, Tile{2}, Tile{2}, Tile{2}},
+			}},
+			direction: dirRight,
+			expected: &Grid{[4][4]Tile{
+				{Tile{0}, Tile{0}, Tile{0}, Tile{0}},
+				{Tile{0}, Tile{0}, Tile{0}, Tile{0}},
+				{Tile{0}, Tile{0}, Tile{0}, Tile{2}},
+				{Tile{0}, Tile{0}, Tile{4}, Tile{4}},
+			}},
+		},
 	} {
-		got := tc.input.Move(tc.direction)
+		got := tc.input.clone()
+		got.Move(tc.direction)
 		if !reflect.DeepEqual(tc.expected, got) {
 			t.Errorf("Expected:\n<%s>\nGot:\n<%s>", tc.expected.debug(), got.debug())
 		}

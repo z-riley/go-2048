@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
 	"reflect"
 )
@@ -32,14 +31,6 @@ type Grid struct {
 
 // NewGrid initialises a new grid with a random starting arrangement.
 func NewGrid() *Grid {
-	// Place two '2' tiles in two random positions
-	type pos struct{ x, y int }
-	tile1 := pos{rand.Intn(gridWidth), rand.Intn(gridHeight)}
-	tile2 := pos{rand.Intn(gridWidth), rand.Intn(gridHeight)}
-	for reflect.DeepEqual(tile1, tile2) {
-		// Try again until they're unique
-		tile2 = pos{rand.Intn(gridWidth), rand.Intn(gridHeight)}
-	}
 	g := Grid{}
 	g.ResetGrid()
 	return &g
@@ -97,13 +88,13 @@ func (g *Grid) Render(inColour bool) string {
 }
 
 // Move moves all tiles in the specified direction, combining them if appropriate.
-func (g Grid) Move(dir direction) *Grid {
+func (g *Grid) Move(dir direction) {
 	var prevState = [gridWidth][gridHeight]Tile{}
 
 	n := 1
 	// Repeat until no more moves occur
 	for !reflect.DeepEqual(g.tiles, prevState) {
-		fmt.Println("Iteration:", n)
+		// fmt.Println("Iteration:", n)
 		n++
 		// Save grid state for comparison
 		for a := range gridHeight {
@@ -139,6 +130,17 @@ func (g Grid) Move(dir direction) *Grid {
 
 					if g.tiles[x][y].val == tile.val {
 						// Similar tile exists at new location. Combine tiles
+						// fmt.Println(" - combining")
+
+						// FIXME: current issue is this does as many moves as it can.
+						// Need to iterate in a smarter way (in my notepad)
+
+						// x,y - hypothetical new location
+						// i,j - current location of tile
+						g.tiles[x][y].val += tile.val // update the new location
+						g.tiles[i][j].val = emptyTile // clear the old location
+
+						continue
 
 					} else if g.tiles[x][y].val != emptyTile {
 						// Different tile exists in new location. Don't move
@@ -146,14 +148,14 @@ func (g Grid) Move(dir direction) *Grid {
 						continue
 					}
 
+					g.tiles[x][y].val = tile.val  // populate the new location
 					g.tiles[i][j].val = emptyTile // clear the old location
-					g.tiles[x][y].val = tile.val  //populate the new location
 					// fmt.Println(" ...moved!")
 				}
 			}
 		}
+		// TODO: re-draw screen and delay here to show animation
 	}
-	return &g
 }
 
 // debug arranges the grid into a human readable string for debugging purposes.
@@ -166,4 +168,15 @@ func (g *Grid) debug() string {
 		out += "\n"
 	}
 	return out
+}
+
+// clone returns a deep copy for debugging purposes.
+func (g *Grid) clone() *Grid {
+	newGrid := &Grid{}
+	for a := range gridHeight {
+		for b := range gridWidth {
+			newGrid.tiles[a][b] = g.tiles[a][b]
+		}
+	}
+	return newGrid
 }
