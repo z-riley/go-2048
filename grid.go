@@ -90,12 +90,10 @@ func (g *Grid) Render(inColour bool) string {
 // Move moves all tiles in the specified direction, combining them if appropriate.
 func (g *Grid) Move(dir direction) {
 	var prevState = [gridWidth][gridHeight]Tile{}
+	var combinedThisTurn = [gridWidth][gridHeight]bool{}
 
-	n := 1
 	// Repeat until no more moves occur
 	for !reflect.DeepEqual(g.tiles, prevState) {
-		// fmt.Println("Iteration:", n)
-		n++
 		// Save grid state for comparison
 		for a := range gridHeight {
 			for b := range gridWidth {
@@ -120,37 +118,31 @@ func (g *Grid) Move(dir direction) {
 					case dirDown:
 						x, y = i+1, j
 					}
-					// fmt.Print("Tile: ", tile, " at pos: ", i, j, ". New pos: ", x, y)
 
 					// Check if new position is valid (on the grid)
 					if x < 0 || y < 0 || y >= gridHeight || x >= gridWidth {
-						// fmt.Println(" - can't move: new position invalid")
 						continue
 					}
 
-					if g.tiles[x][y].val == tile.val {
+					if g.tiles[x][y].val == tile.val && !combinedThisTurn[x][y] {
 						// Similar tile exists at new location. Combine tiles
-						// fmt.Println(" - combining")
 
-						// FIXME: current issue is this does as many moves as it can.
-						// Need to iterate in a smarter way (in my notepad)
-
-						// x,y - hypothetical new location
-						// i,j - current location of tile
 						g.tiles[x][y].val += tile.val // update the new location
 						g.tiles[i][j].val = emptyTile // clear the old location
+
+						// Only allow one combination operation for each tile.
+						// For example, so '2, 2, 2, 2' doesn't combine into '8', but '4, 4' like it should
+						combinedThisTurn[x][y] = true
 
 						continue
 
 					} else if g.tiles[x][y].val != emptyTile {
 						// Different tile exists in new location. Don't move
-						// fmt.Println(" - can't move: tile occupying new position")
 						continue
 					}
 
 					g.tiles[x][y].val = tile.val  // populate the new location
 					g.tiles[i][j].val = emptyTile // clear the old location
-					// fmt.Println(" ...moved!")
 				}
 			}
 		}
