@@ -148,6 +148,21 @@ func (g *Grid) Move(dir direction) {
 		}
 		// TODO: re-draw screen and delay here to show animation
 	}
+// SpawnTile adds a new tile in a random location on the grid.
+// The value of the tile is 2 (90% chance) or 4 (10% chance.)
+func (g *Grid) SpawnTile() {
+	val := 2
+	if rand.Float64() >= 0.9 {
+		val = 4
+	}
+
+	x, y := rand.Intn(gridWidth), rand.Intn(gridHeight)
+	for g.tiles[x][y].val != emptyTile {
+		// Try again until they're unique
+		x, y = rand.Intn(gridWidth), rand.Intn(gridHeight)
+	}
+
+	g.tiles[x][y].val = val
 }
 
 // debug arranges the grid into a human readable string for debugging purposes.
