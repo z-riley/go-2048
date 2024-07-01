@@ -88,9 +88,13 @@ func (g *Grid) Render(inColour bool) string {
 }
 
 // Move moves all tiles in the specified direction, combining them if appropriate.
-func (g *Grid) Move(dir direction) {
-	var prevState = [gridWidth][gridHeight]Tile{}
-	var combinedThisTurn = [gridWidth][gridHeight]bool{}
+// Returns whether any tiles moved from the move attempt.
+func (g *Grid) Move(dir direction) bool {
+	var (
+		moved            = false
+		prevState        = [gridWidth][gridHeight]Tile{}
+		combinedThisTurn = [gridWidth][gridHeight]bool{}
+	)
 
 	// Repeat until no more moves occur
 	for !reflect.DeepEqual(g.tiles, prevState) {
@@ -103,51 +107,67 @@ func (g *Grid) Move(dir direction) {
 
 		// For each position where there is a tile...
 		for i := range gridWidth {
+			if dir == dirDown || dir == dirRight {
+				i = gridWidth - 1 - i
+			}
+
 			for j := range gridHeight {
-				tile := g.tiles[i][j]
-				if tile.val != 0 {
-					// Calculate the hypothetical next position for the tile
-					x, y := 0, 0
-					switch dir {
-					case dirLeft:
-						x, y = i, j-1
-					case dirRight:
-						x, y = i, j+1
-					case dirUp:
-						x, y = i-1, j
-					case dirDown:
-						x, y = i+1, j
-					}
-
-					// Check if new position is valid (on the grid)
-					if x < 0 || y < 0 || y >= gridHeight || x >= gridWidth {
-						continue
-					}
-
-					if g.tiles[x][y].val == tile.val && !combinedThisTurn[x][y] {
-						// Similar tile exists at new location. Combine tiles
-
-						g.tiles[x][y].val += tile.val // update the new location
-						g.tiles[i][j].val = emptyTile // clear the old location
-
-						// Only allow one combination operation for each tile.
-						// For example, so '2, 2, 2, 2' doesn't combine into '8', but '4, 4' like it should
-						combinedThisTurn[x][y] = true
-
-						continue
-
-					} else if g.tiles[x][y].val != emptyTile {
-						// Different tile exists in new location. Don't move
-						continue
-					}
-
-					g.tiles[x][y].val = tile.val  // populate the new location
-					g.tiles[i][j].val = emptyTile // clear the old location
+				if dir == dirDown || dir == dirRight {
+					j = gridHeight - 1 - j
 				}
+
+				tile := g.tiles[i][j]
+				if tile.val == emptyTile {
+					continue
+				}
+
+				// Calculate the hypothetical next position for the tile
+				x, y := 0, 0
+				switch dir {
+				case dirLeft:
+					x, y = i, j-1
+				case dirRight:
+					x, y = i, j+1
+				case dirUp:
+					x, y = i-1, j
+				case dirDown:
+					x, y = i+1, j
+				}
+
+				// Check if new position is valid (on the grid)
+				if x < 0 || y < 0 || y >= gridHeight || x >= gridWidth {
+					continue
+				}
+
+				if g.tiles[x][y].val == tile.val && !combinedThisTurn[x][y] {
+					// Similar tile exists at new location; combine tiles
+					g.tiles[x][y].val += tile.val // update the new location
+					g.tiles[i][j].val = emptyTile // clear the old location
+
+					// Only allow one combination operation for each tile.
+					// For example, so '2, 2, 2, 2' doesn't combine into '8', but '4, 4' like it should
+					combinedThisTurn[x][y] = true
+
+					moved = true
+					continue
+
+				} else if g.tiles[x][y].val != emptyTile {
+					// Different tile exists in new location; don't move
+					continue
+				}
+
+				// Desintation empty; move tile
+				g.tiles[x][y].val = tile.val  // populate the new location
+				g.tiles[i][j].val = emptyTile // clear the old location
+				moved = true
+
 			}
 		}
 		// TODO: re-draw screen and delay here to show animation
 	}
+	return moved
+}
+
 // SpawnTile adds a new tile in a random location on the grid.
 // The value of the tile is 2 (90% chance) or 4 (10% chance.)
 func (g *Grid) SpawnTile() {
