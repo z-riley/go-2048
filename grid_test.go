@@ -173,74 +173,64 @@ func TestMove_combineTiles(t *testing.T) {
 	}
 }
 
-func TestMoveVector(t *testing.T) {
-	type tc struct {
-		input    []Tile
-		expected []Tile
-	}
-
-	for n, tc := range []tc{
-		{
-			input:    []Tile{{val: 4}, {val: 0}, {val: 2}, {val: 0}},
-			expected: []Tile{{val: 4}, {val: 2}, {val: 0}, {val: 0}},
-		},
-		{
-			input:    []Tile{{val: 8}, {val: 4}, {val: 2}, {val: 2}},
-			expected: []Tile{{val: 8}, {val: 4}, {val: 4}, {val: 0}},
-		},
-		{
-			input:    []Tile{{val: 2}, {val: 2}, {val: 2}, {val: 2}},
-			expected: []Tile{{val: 4}, {val: 4}, {val: 0}, {val: 0}},
-		},
-		{
-			input:    []Tile{{val: 0}, {val: 4}, {val: 2}, {val: 2}},
-			expected: []Tile{{val: 4}, {val: 4}, {val: 0}, {val: 0}},
-		},
-	} {
-		got := MoveVector(tc.input)
-		if !reflect.DeepEqual(tc.expected, got) {
-			t.Errorf("[%d] \nExpected:\n<%v>\nGot:\n<%v>", n, tc.expected, got)
-		}
-	}
-}
-
 func TestMoveStep(t *testing.T) {
 	type tc struct {
-		input    []Tile
-		expected []Tile
+		input    [4]Tile
+		expected [4]Tile
+		moved    bool
 	}
 
 	for n, tc := range []tc{
 		// 2 2 2 2 --[left]--> 4 4 0 0
 		{
-			input:    []Tile{{val: 2}, {val: 2}, {val: 2}, {val: 2}},
-			expected: []Tile{{val: 2}, {val: 2}, {val: 4, cmb: true}, {val: 0}},
+			input:    [4]Tile{{val: 2}, {val: 2}, {val: 2}, {val: 2}},
+			expected: [4]Tile{{val: 2}, {val: 2}, {val: 4, cmb: true}, {val: 0}},
+			moved:    true,
 		},
 		{
-			input:    []Tile{{val: 2}, {val: 2}, {val: 4, cmb: true}, {val: 0}},
-			expected: []Tile{{val: 4, cmb: true}, {val: 0}, {val: 4, cmb: true}, {val: 0}},
+			input:    [4]Tile{{val: 2}, {val: 2}, {val: 4, cmb: true}, {val: 0}},
+			expected: [4]Tile{{val: 4, cmb: true}, {val: 0}, {val: 4, cmb: true}, {val: 0}},
+			moved:    true,
 		},
 		{
-			input:    []Tile{{val: 4, cmb: true}, {val: 0}, {val: 4, cmb: true}, {val: 0}},
-			expected: []Tile{{val: 4, cmb: true}, {val: 4, cmb: true}, {val: 0}, {val: 0}},
+			input:    [4]Tile{{val: 4, cmb: true}, {val: 0}, {val: 4, cmb: true}, {val: 0}},
+			expected: [4]Tile{{val: 4, cmb: true}, {val: 4, cmb: true}, {val: 0}, {val: 0}},
+			moved:    true,
 		},
 		// 0 4 2 2 --[left]--> 4 4 0 0
 		{
-			input:    []Tile{{val: 0}, {val: 4}, {val: 2}, {val: 2}},
-			expected: []Tile{{val: 0}, {val: 4}, {val: 4, cmb: true}, {val: 0}},
+			input:    [4]Tile{{val: 0}, {val: 4}, {val: 2}, {val: 2}},
+			expected: [4]Tile{{val: 0}, {val: 4}, {val: 4, cmb: true}, {val: 0}},
+			moved:    true,
 		},
 		{
-			input:    []Tile{{val: 0}, {val: 4}, {val: 4, cmb: true}, {val: 0}},
-			expected: []Tile{{val: 4}, {val: 0}, {val: 4, cmb: true}, {val: 0}},
+			input:    [4]Tile{{val: 0}, {val: 4}, {val: 4, cmb: true}, {val: 0}},
+			expected: [4]Tile{{val: 4}, {val: 0}, {val: 4, cmb: true}, {val: 0}},
+			moved:    true,
 		},
 		{
-			input:    []Tile{{val: 4}, {val: 0}, {val: 4, cmb: true}, {val: 0}},
-			expected: []Tile{{val: 4}, {val: 4, cmb: true}, {val: 0}, {val: 0}},
+			input:    [4]Tile{{val: 4}, {val: 0}, {val: 4, cmb: true}, {val: 0}},
+			expected: [4]Tile{{val: 4}, {val: 4, cmb: true}, {val: 0}, {val: 0}},
+			moved:    true,
+		},
+		{
+			input:    [4]Tile{{val: 4}, {val: 4, cmb: true}, {val: 0}, {val: 0}},
+			expected: [4]Tile{{val: 4}, {val: 4, cmb: true}, {val: 0}, {val: 0}},
+			moved:    false,
+		},
+		// 0 0 0 0 --[left]--> 0 0 0 0
+		{
+			input:    [4]Tile{{val: 4}, {val: 0}, {val: 0}, {val: 0}},
+			expected: [4]Tile{{val: 4}, {val: 0}, {val: 0}, {val: 0}},
+			moved:    false,
 		},
 	} {
-		got := MoveStep(tc.input)
+		got, moved := MoveStep(tc.input)
 		if !reflect.DeepEqual(tc.expected, got) {
 			t.Errorf("[%d] \nExpected:\n<%v>\nGot:\n<%v>", n, tc.expected, got)
+		}
+		if tc.moved != moved {
+			t.Errorf("[%d] \nExpected:\n<%v>\nGot:\n<%v>", n, tc.moved, moved)
 		}
 	}
 }

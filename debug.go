@@ -1,9 +1,11 @@
 package main
 
+import "fmt"
+
 var debugString string
 
 // Debug prints a string to the bottom of the game window.
-func Debug(s string) {
-	debugString += s + "; "
-	print(debugString)
+func Debug(a any) {
+	debugString += fmt.Sprint(a) + "; "
+	fmt.Print(debugString)
 }

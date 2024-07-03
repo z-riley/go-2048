@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
 	"reflect"
+	"time"
 )
 
 type direction int
@@ -90,84 +90,37 @@ func (g *Grid) Render(inColour bool) string {
 // Move moves all tiles in the specified direction, combining them if appropriate.
 // Returns whether any tiles moved from the move attempt.
 func (g *Grid) Move(dir direction, renderFunc func()) bool {
+	moved := false
 
-	// TODO: Execute steps, re-rendering each time
-	renderFunc()
-
-	// ALSO NEED TO CLEAR ALL combined FLAGS AT THE END OF THIS FUNCTION
-
-	return false
-}
-
-type vec []Tile
-
-// JUST MOVES LEFT FOR NOW
-func MoveVector(vec []Tile) []Tile {
-
-	// For each tile:
-	// Try to move 3 spaces
-	// Try to move 2 spaces
-	// Try to move 1 space
-
-	// !!!!!!!!!!!!!!!!
-	// IDEA: REMOVE THE ZEROS BEFORE DOING ANY OPERATIONS
-	// THEN ADD THEM ON AT THE END
-	// 2,2,2,2 -> 4,4. Then add the zeros on the right
-
-	// FIXME: FIRST TRY LUT VERSION (IN TXT NOTE)
-
-	for i := range vec {
-		tile := vec[i]
-
-		for _, n := range []int{1, 2, 3} {
-
-			// Calculate the hypothetical next position for the tile
-			newPos := i - n
-
-			// Skip if new position is not valid (on the grid)
-			if newPos < 0 || newPos >= len(vec) {
-				break
+	// Execute steps, re-rendering each time
+	for {
+		movedThisTurn := false
+		for row := 0; row < gridHeight; row++ {
+			var rowMoved bool
+			g.tiles[row], rowMoved = MoveStep(g.tiles[row])
+			if rowMoved {
+				movedThisTurn = true
+				moved = true
 			}
-
-			// Skip if source tile is empty
-			if tile.val == emptyTile {
-				continue
-			}
-
-			// Combine if similar tile exists at destination
-			if vec[newPos].val == tile.val {
-				fmt.Println("!¬!!!!!!!!!!!!!!!!!!!!!!")
-				vec[newPos].val += tile.val // update the new location
-				vec[i].val = emptyTile      // clear the old location
-				break
-			} else if vec[newPos].val != emptyTile {
-				// Break if move blocked by another tile
-
-				break
-			}
-
-			// Destination empty; move tile
-			if vec[newPos].val == emptyTile {
-				vec[newPos].val = tile.val // populate the new location
-				vec[i].val = emptyTile     // clear the old location
-				continue
-			}
-
-			panic("THIS CODE SHOULDN'T RUN")
-
 		}
-
+		renderFunc()
+		if !movedThisTurn {
+			break
+		}
+		time.Sleep(200 * time.Millisecond)
 	}
 
-	// Clear all combinedThisTurn flags
-	for i := range vec {
-		vec[i].cmb = false
+	// Clear all of the "combined this turn" flags
+	for i := 0; i < gridWidth; i++ {
+		for j := 0; j < gridHeight; j++ {
+			g.tiles[i][j].cmb = false
+		}
 	}
 
-	return vec
+	return moved
 }
 
-func MoveStep(g []Tile) []Tile {
+func MoveStep(g [gridWidth]Tile) ([gridWidth]Tile, bool) {
 	// CURRENTLY ONLY GOES LEFT
 
 	for i := len(g) - 1; i >= 0; i-- {
@@ -185,11 +138,13 @@ func MoveStep(g []Tile) []Tile {
 		}
 
 		// Combine if similar tile exists at destination and end turn
-		if g[newPos].val == g[i].val && !g[i].cmb && !g[newPos].cmb {
+		alreadyCombined := g[i].cmb || g[newPos].cmb
+		if g[newPos].val == g[i].val && !alreadyCombined {
 			g[newPos].val += g[i].val // update the new location
 			g[newPos].cmb = true
 			g[i].val = emptyTile // clear the old location
-			return g
+			return g, true
+
 		} else if g[newPos].val != emptyTile {
 			// Move blocked by another tile
 			continue
@@ -199,11 +154,11 @@ func MoveStep(g []Tile) []Tile {
 		if g[newPos].val == emptyTile {
 			g[newPos] = g[i] // populate the new location
 			g[i] = Tile{}    // clear the old location
-			return g
+			return g, true
 		}
 	}
 
-	return g
+	return g, false
 }
 
 // SpawnTile adds a new tile in a random location on the grid.

@@ -30,8 +30,8 @@ func NewGame() *Game {
 
 func (g *Game) ExecuteMove(dir direction) {
 	// 1. Grid moves and re-renders itself
-	didMove := g.grid.Move(dir, func() { g.SetText(g.grid.Render(inColour)) }) // TODO: could this func just be g.render()?
-	g.render()
+	didMove := g.grid.Move(dir, g.render)
+
 	// 2. Grid spawns tile and re-renders itself
 	if didMove {
 		g.grid.SpawnTile()
