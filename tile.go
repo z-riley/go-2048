@@ -21,8 +21,8 @@ func NewTile() *Tile {
 	}
 }
 
-// TileNumber returns the middle section of a tile, which displays its value.
-func (t *Tile) TileNumber(colour bool) string {
+// RenderTileNumber returns the middle section of a tile, which displays its value.
+func (t *Tile) RenderTileNumber(colour bool) string {
 	if colour {
 		return t.colour() + t.paddedString()
 	} else {
@@ -30,8 +30,8 @@ func (t *Tile) TileNumber(colour bool) string {
 	}
 }
 
-// TilePadding returns the top or bottom padding of a tile (value not displayed).
-func (t *Tile) TilePadding(colour bool) string {
+// RenderTilePadding returns the top or bottom padding of a tile (value not displayed).
+func (t *Tile) RenderTilePadding(colour bool) string {
 	padding := strings.Repeat(" ", tileWidth)
 	if colour {
 		return t.colour() + padding

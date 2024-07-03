@@ -75,12 +75,12 @@ func (g *Grid) Render(inColour bool) string {
 			case topSection, botSection:
 				// Construct string of coloured space
 				for col := range gridWidth {
-					render += g.tiles[row][col].TilePadding(inColour)
+					render += g.tiles[row][col].RenderTilePadding(inColour)
 				}
 			case midSection:
 				// Construct string of coloured numbers with padding
 				for col := range gridWidth {
-					render += g.tiles[row][col].TileNumber(inColour)
+					render += g.tiles[row][col].RenderTileNumber(inColour)
 				}
 			}
 			render += "\n"
@@ -270,7 +270,7 @@ func (g *Grid) debug() string {
 	var out string
 	for row := 0; row < gridHeight; row++ {
 		for col := range gridWidth {
-			out += g.tiles[row][col].TileNumber(false) + "|"
+			out += g.tiles[row][col].RenderTileNumber(false) + "|"
 		}
 		out += "\n"
 	}
