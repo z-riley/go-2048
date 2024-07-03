@@ -10,7 +10,8 @@ const (
 )
 
 type Tile struct {
-	val int
+	val              int
+	combinedThisTurn bool
 }
 
 // NewTile spawns a new tile with a starting value of 2.

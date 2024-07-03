@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"reflect"
 )
@@ -26,12 +27,13 @@ const (
 
 // Grid is the grid arena for the game. Position {0,0} is the top left square.
 type Grid struct {
-	tiles [gridWidth][gridHeight]Tile
+	tiles      [gridWidth][gridHeight]Tile
+	renderFunc func(string)
 }
 
 // NewGrid initialises a new grid with a random starting arrangement.
-func NewGrid() *Grid {
-	g := Grid{}
+func NewGrid(rf func(string)) *Grid {
+	g := Grid{renderFunc: rf}
 	g.ResetGrid()
 	return &g
 }
@@ -49,6 +51,8 @@ func (g *Grid) ResetGrid() {
 	}
 	g.tiles[tile1.x][tile1.y].val = 2
 	g.tiles[tile2.x][tile2.y].val = 2
+
+	g.renderFunc(g.Render(true))
 }
 
 // Render constructs the grid arena into a single string.
@@ -156,7 +160,7 @@ func (g *Grid) Move(dir direction) bool {
 					continue
 				}
 
-				// Desintation empty; move tile
+				// Destination empty; move tile
 				g.tiles[x][y].val = tile.val  // populate the new location
 				g.tiles[i][j].val = emptyTile // clear the old location
 				moved = true
@@ -166,6 +170,82 @@ func (g *Grid) Move(dir direction) bool {
 		// TODO: re-draw screen and delay here to show animation
 	}
 	return moved
+}
+
+// MoveNew moves all tiles in the specified direction, combining them if appropriate.
+// Returns whether any tiles moved from the move attempt.
+func (g *Grid) MoveNew(dir direction) bool {
+	moved := false
+
+	return moved
+}
+
+type vec []Tile
+
+// JUST MOVES LEFT FOR NOW
+func MoveVector(vec []Tile) []Tile {
+
+	// For each tile:
+	// Try to move 3 spaces
+	// Try to move 2 spaces
+	// Try to move 1 space
+
+	// !!!!!!!!!!!!!!!!
+	// IDEA: REMOVE THE ZEROS BEFORE DOING ANY OPERATIONS
+	// THEN ADD THEM ON AT THE END
+	// 2,2,2,2 -> 4,4. Then add the zeros on the right
+
+	// FIXME: FIRST TRY LUT VERSION (IN TXT NOTE)
+
+	for i := range vec {
+		tile := vec[i]
+
+		for _, n := range []int{1, 2, 3} {
+
+			// Calculate the hypothetical next position for the tile
+			newPos := i - n
+
+			// Skip if new position is not valid (on the grid)
+			if newPos < 0 || newPos >= len(vec) {
+				break
+			}
+
+			// Skip if source tile is empty
+			if tile.val == emptyTile {
+				continue
+			}
+
+			// Combine if similar tile exists at destination
+			if vec[newPos].val == tile.val {
+				fmt.Println("!¬!!!!!!!!!!!!!!!!!!!!!!")
+				vec[newPos].val += tile.val // update the new location
+				vec[i].val = emptyTile      // clear the old location
+				break
+			} else if vec[newPos].val != emptyTile {
+				// Break if move blocked by another tile
+
+				break
+			}
+
+			// Destination empty; move tile
+			if vec[newPos].val == emptyTile {
+				vec[newPos].val = tile.val // populate the new location
+				vec[i].val = emptyTile     // clear the old location
+				continue
+			}
+
+			panic("THIS CODE SHOULDN'T RUN")
+
+		}
+
+	}
+
+	// Clear all combinedThisTurn flags
+	for i := range vec {
+		vec[i].combinedThisTurn = false
+	}
+
+	return vec
 }
 
 // SpawnTile adds a new tile in a random location on the grid.
