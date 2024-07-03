@@ -27,18 +27,16 @@ const (
 
 // Grid is the grid arena for the game. Position {0,0} is the top left square.
 type Grid struct {
-	tiles      [gridWidth][gridHeight]Tile
-	renderFunc func(string)
+	tiles [gridWidth][gridHeight]Tile
 }
 
 // NewGrid initialises a new grid with a random starting arrangement.
-func NewGrid(rf func(string)) *Grid {
-	g := Grid{renderFunc: rf}
-	g.ResetGrid()
+func NewGrid() *Grid {
+	g := Grid{}
 	return &g
 }
 
-// ResetGrid resets the grid to a start-of-game state.
+// ResetGrid resets the grid to a start-of-game state, spawning two '2' tiles in random locations.
 func (g *Grid) ResetGrid() {
 	g.tiles = [gridWidth][gridHeight]Tile{}
 	// Place two '2' tiles in two random positions
@@ -51,8 +49,6 @@ func (g *Grid) ResetGrid() {
 	}
 	g.tiles[tile1.x][tile1.y].val = 2
 	g.tiles[tile2.x][tile2.y].val = 2
-
-	g.renderFunc(g.Render(true))
 }
 
 // Render constructs the grid arena into a single string.
@@ -93,91 +89,14 @@ func (g *Grid) Render(inColour bool) string {
 
 // Move moves all tiles in the specified direction, combining them if appropriate.
 // Returns whether any tiles moved from the move attempt.
-func (g *Grid) Move(dir direction) bool {
-	var (
-		moved            = false
-		prevState        = [gridWidth][gridHeight]Tile{}
-		combinedThisTurn = [gridWidth][gridHeight]bool{}
-	)
+func (g *Grid) Move(dir direction, renderFunc func()) bool {
 
-	// Repeat until no more moves occur
-	for !reflect.DeepEqual(g.tiles, prevState) {
-		// Save grid state for comparison
-		for a := range gridHeight {
-			for b := range gridWidth {
-				prevState[a][b] = g.tiles[a][b]
-			}
-		}
+	// TODO: Execute steps, re-rendering each time
+	renderFunc()
 
-		// For each position where there is a tile...
-		for i := range gridWidth {
-			if dir == dirDown || dir == dirRight {
-				i = gridWidth - 1 - i
-			}
+	// ALSO NEED TO CLEAR ALL combined FLAGS AT THE END OF THIS FUNCTION
 
-			for j := range gridHeight {
-				if dir == dirDown || dir == dirRight {
-					j = gridHeight - 1 - j
-				}
-
-				tile := g.tiles[i][j]
-				if tile.val == emptyTile {
-					continue
-				}
-
-				// Calculate the hypothetical next position for the tile
-				x, y := 0, 0
-				switch dir {
-				case dirLeft:
-					x, y = i, j-1
-				case dirRight:
-					x, y = i, j+1
-				case dirUp:
-					x, y = i-1, j
-				case dirDown:
-					x, y = i+1, j
-				}
-
-				// Check if new position is valid (on the grid)
-				if x < 0 || y < 0 || y >= gridHeight || x >= gridWidth {
-					continue
-				}
-
-				if g.tiles[x][y].val == tile.val && !combinedThisTurn[x][y] {
-					// Similar tile exists at new location; combine tiles
-					g.tiles[x][y].val += tile.val // update the new location
-					g.tiles[i][j].val = emptyTile // clear the old location
-
-					// Only allow one combination operation for each tile.
-					// For example, so '2, 2, 2, 2' doesn't combine into '8', but '4, 4' like it should
-					combinedThisTurn[x][y] = true
-
-					moved = true
-					continue
-
-				} else if g.tiles[x][y].val != emptyTile {
-					// Different tile exists in new location; don't move
-					continue
-				}
-
-				// Destination empty; move tile
-				g.tiles[x][y].val = tile.val  // populate the new location
-				g.tiles[i][j].val = emptyTile // clear the old location
-				moved = true
-
-			}
-		}
-		// TODO: re-draw screen and delay here to show animation
-	}
-	return moved
-}
-
-// MoveNew moves all tiles in the specified direction, combining them if appropriate.
-// Returns whether any tiles moved from the move attempt.
-func (g *Grid) MoveNew(dir direction) bool {
-	moved := false
-
-	return moved
+	return false
 }
 
 type vec []Tile
@@ -242,10 +161,49 @@ func MoveVector(vec []Tile) []Tile {
 
 	// Clear all combinedThisTurn flags
 	for i := range vec {
-		vec[i].combinedThisTurn = false
+		vec[i].cmb = false
 	}
 
 	return vec
+}
+
+func MoveStep(g []Tile) []Tile {
+	// CURRENTLY ONLY GOES LEFT
+
+	for i := len(g) - 1; i >= 0; i-- {
+		// Calculate the hypothetical next position for the tile
+		newPos := i - 1
+
+		// Skip if new position is not valid (on the grid)
+		if newPos < 0 || newPos >= len(g) {
+			continue
+		}
+
+		// Skip if source tile is empty
+		if g[i].val == emptyTile {
+			continue
+		}
+
+		// Combine if similar tile exists at destination and end turn
+		if g[newPos].val == g[i].val && !g[i].cmb && !g[newPos].cmb {
+			g[newPos].val += g[i].val // update the new location
+			g[newPos].cmb = true
+			g[i].val = emptyTile // clear the old location
+			return g
+		} else if g[newPos].val != emptyTile {
+			// Move blocked by another tile
+			continue
+		}
+
+		// Destination empty; move tile and end turn
+		if g[newPos].val == emptyTile {
+			g[newPos] = g[i] // populate the new location
+			g[i] = Tile{}    // clear the old location
+			return g
+		}
+	}
+
+	return g
 }
 
 // SpawnTile adds a new tile in a random location on the grid.

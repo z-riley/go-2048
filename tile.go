@@ -10,8 +10,8 @@ const (
 )
 
 type Tile struct {
-	val              int
-	combinedThisTurn bool
+	val int  // the value of the number on the tile
+	cmb bool // flag for whether tile was combined in the current turn
 }
 
 // NewTile spawns a new tile with a starting value of 2.
