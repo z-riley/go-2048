@@ -4,6 +4,8 @@ import (
 	"math/rand"
 	"reflect"
 	"time"
+
+	"github.com/zac460/go-2048/pkg/iter"
 )
 
 type direction int
@@ -97,7 +99,19 @@ func (g *Grid) Move(dir direction, renderFunc func()) bool {
 		movedThisTurn := false
 		for row := 0; row < gridHeight; row++ {
 			var rowMoved bool
-			g.tiles[row], rowMoved = MoveStep(g.tiles[row], dir)
+
+			// The MoveStep function only operates on a row, so to move vertically
+			// we must transpose the grid before and after the move operation.
+			if dir == dirUp || dir == dirDown {
+				g.tiles = transpose(g.tiles)
+			}
+
+			g.tiles[row], rowMoved = moveStep(g.tiles[row], dir)
+
+			if dir == dirUp || dir == dirDown {
+				g.tiles = transpose(g.tiles)
+			}
+
 			if rowMoved {
 				movedThisTurn = true
 				moved = true
@@ -107,7 +121,7 @@ func (g *Grid) Move(dir direction, renderFunc func()) bool {
 		if !movedThisTurn {
 			break
 		}
-		time.Sleep(30 * time.Millisecond)
+		time.Sleep(25 * time.Millisecond)
 	}
 
 	// Clear all of the "combined this turn" flags
@@ -120,55 +134,59 @@ func (g *Grid) Move(dir direction, renderFunc func()) bool {
 	return moved
 }
 
-// TODO: move this somewhere better
-type iter struct {
-	Length  int
-	Reverse bool
-	idx     int
+// SpawnTile adds a new tile in a random location on the grid.
+// The value of the tile is 2 (90% chance) or 4 (10% chance).
+func (g *Grid) SpawnTile() {
+	val := 2
+	if rand.Float64() >= 0.9 {
+		val = 4
+	}
+
+	x, y := rand.Intn(gridWidth), rand.Intn(gridHeight)
+	for g.tiles[x][y].val != emptyTile {
+		// Try again until they're unique
+		x, y = rand.Intn(gridWidth), rand.Intn(gridHeight)
+	}
+
+	g.tiles[x][y].val = val
 }
 
-func NewIter(length int, reverse bool) *iter {
-	if reverse {
-		return &iter{Length: length, Reverse: true, idx: length - 1}
-	} else {
-		return &iter{Length: length, Reverse: false, idx: 0}
+// string arranges the grid into a human readable string for debugging purposes.
+func (g *Grid) string() string {
+	var out string
+	for row := 0; row < gridHeight; row++ {
+		for col := range gridWidth {
+			out += g.tiles[row][col].RenderTileNumber(false) + "|"
+		}
+		out += "\n"
 	}
+	return out
 }
 
-func (i *iter) hasNext() bool {
-	if i.Reverse {
-		return i.idx >= 0
-	} else {
-		return i.idx < i.Length
+// clone returns a deep copy for debugging purposes.
+func (g *Grid) clone() *Grid {
+	newGrid := &Grid{}
+	for a := range gridHeight {
+		for b := range gridWidth {
+			newGrid.tiles[a][b] = g.tiles[a][b]
+		}
 	}
-}
-func (i *iter) next() int {
-	if !i.hasNext() {
-		panic("no more elements")
-	}
-	if i.Reverse {
-		out := i.idx
-		i.idx--
-		return out
-	} else {
-		out := i.idx
-		i.idx++
-		return out
-	}
+	return newGrid
 }
 
-func MoveStep(g [gridWidth]Tile, dir direction) ([gridWidth]Tile, bool) {
-
+// moveStep executes one part of the a move. Call multiple times until false
+// is returned to complete a full move.
+func moveStep(g [gridWidth]Tile, dir direction) ([gridWidth]Tile, bool) {
+	// Iterate in the opposite direction to the move
 	reverse := false
 	if dir == dirLeft || dir == dirUp {
 		reverse = true
 	}
+	iter := iter.NewIter(len(g), reverse)
 
-	iter := NewIter(len(g), reverse)
-	for iter.hasNext() {
-		i := iter.next()
-
+	for iter.HasNext() {
 		// Calculate the hypothetical next position for the tile
+		i := iter.Next()
 		var newPos int
 		if reverse {
 			newPos = i - 1
@@ -201,52 +219,21 @@ func MoveStep(g [gridWidth]Tile, dir direction) ([gridWidth]Tile, bool) {
 
 		// Destination empty; move tile and end turn
 		if g[newPos].val == emptyTile {
-			g[newPos] = g[i] // populate the new location
-			g[i] = Tile{}    // clear the old location
+			g[newPos] = g[i]
+			g[i] = Tile{}
 			return g, true
 		}
-
 	}
-
 	return g, false
 }
 
-// SpawnTile adds a new tile in a random location on the grid.
-// The value of the tile is 2 (90% chance) or 4 (10% chance.)
-func (g *Grid) SpawnTile() {
-	val := 2
-	if rand.Float64() >= 0.9 {
-		val = 4
-	}
-
-	x, y := rand.Intn(gridWidth), rand.Intn(gridHeight)
-	for g.tiles[x][y].val != emptyTile {
-		// Try again until they're unique
-		x, y = rand.Intn(gridWidth), rand.Intn(gridHeight)
-	}
-
-	g.tiles[x][y].val = val
-}
-
-// debug arranges the grid into a human readable string for debugging purposes.
-func (g *Grid) debug() string {
-	var out string
-	for row := 0; row < gridHeight; row++ {
-		for col := range gridWidth {
-			out += g.tiles[row][col].RenderTileNumber(false) + "|"
-		}
-		out += "\n"
-	}
-	return out
-}
-
-// clone returns a deep copy for debugging purposes.
-func (g *Grid) clone() *Grid {
-	newGrid := &Grid{}
-	for a := range gridHeight {
-		for b := range gridWidth {
-			newGrid.tiles[a][b] = g.tiles[a][b]
+// transpose returns a tranposed version of the grid.
+func transpose(matrix [gridWidth][gridHeight]Tile) [gridHeight][gridWidth]Tile {
+	var transposed [gridHeight][gridWidth]Tile
+	for i := 0; i < gridWidth; i++ {
+		for j := 0; j < gridHeight; j++ {
+			transposed[j][i] = matrix[i][j]
 		}
 	}
-	return newGrid
+	return transposed
 }
