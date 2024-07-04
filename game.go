@@ -10,9 +10,11 @@ import (
 const inColour = true
 
 type Game struct {
+	mu sync.Mutex
 	*tview.TextView
 
-	mu   sync.Mutex
+	updateScoreFunc func()
+
 	grid *Grid
 }
 
@@ -26,7 +28,12 @@ func NewGame() *Game {
 	textView.SetBackgroundColor(tcell.NewHexColor(gridColour)).
 		SetBorder(true).SetBackgroundColor(tcell.ColorBlack)
 
-	g := Game{textView, sync.Mutex{}, NewGrid()}
+	g := Game{
+		mu:              sync.Mutex{},
+		TextView:        textView,
+		updateScoreFunc: func() {},
+		grid:            &Grid{},
+	}
 	g.Reset()
 
 	return &g

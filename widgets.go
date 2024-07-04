@@ -33,4 +33,3 @@ func ResetButton() *tview.Button {
 	button.SetBorder(true)
 	return button
 }
-

@@ -7,11 +7,12 @@ import (
 var app = tview.NewApplication()
 
 func main() {
+
 	game := NewGame()
 
 	flex := tview.NewFlex().
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-			AddItem(tview.NewBox().SetBorder(true).SetTitle(" Score "), 7, 0, false).
+			AddItem(NewScore(), 7, 0, false).
 			AddItem(tview.NewBox().SetBorder(true).SetTitle(" Best "), 7, 0, false).
 			AddItem(tview.NewBox(), 0, 1, false).
 			AddItem(ResetButton(), 7, 0, false),
