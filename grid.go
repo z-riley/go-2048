@@ -97,7 +97,7 @@ func (g *Grid) Move(dir direction, renderFunc func()) bool {
 		movedThisTurn := false
 		for row := 0; row < gridHeight; row++ {
 			var rowMoved bool
-			g.tiles[row], rowMoved = MoveStep(g.tiles[row])
+			g.tiles[row], rowMoved = MoveStep(g.tiles[row], dir)
 			if rowMoved {
 				movedThisTurn = true
 				moved = true
@@ -107,7 +107,7 @@ func (g *Grid) Move(dir direction, renderFunc func()) bool {
 		if !movedThisTurn {
 			break
 		}
-		time.Sleep(200 * time.Millisecond)
+		time.Sleep(20 * time.Millisecond)
 	}
 
 	// Clear all of the "combined this turn" flags
@@ -120,12 +120,62 @@ func (g *Grid) Move(dir direction, renderFunc func()) bool {
 	return moved
 }
 
-func MoveStep(g [gridWidth]Tile) ([gridWidth]Tile, bool) {
+// TODO: move this somewhere better
+type iter struct {
+	Length  int
+	Reverse bool
+	idx     int
+}
+
+func NewIter(length int, reverse bool) *iter {
+	if reverse {
+		return &iter{Length: length, Reverse: true, idx: length - 1}
+	} else {
+		return &iter{Length: length, Reverse: false, idx: 0}
+	}
+}
+
+func (i *iter) hasNext() bool {
+	if i.Reverse {
+		return i.idx >= 0
+	} else {
+		return i.idx < i.Length
+	}
+}
+func (i *iter) next() int {
+	if !i.hasNext() {
+		panic("no more elements")
+	}
+	if i.Reverse {
+		out := i.idx
+		i.idx--
+		return out
+	} else {
+		out := i.idx
+		i.idx++
+		return out
+	}
+}
+
+func MoveStep(g [gridWidth]Tile, dir direction) ([gridWidth]Tile, bool) {
 	// CURRENTLY ONLY GOES LEFT
 
-	for i := len(g) - 1; i >= 0; i-- {
+	reverse := false
+	if dir == dirLeft {
+		reverse = true
+	}
+
+	iter := NewIter(len(g), reverse)
+	for iter.hasNext() {
+		i := iter.next()
+
 		// Calculate the hypothetical next position for the tile
-		newPos := i - 1
+		var newPos int
+		if reverse {
+			newPos = i - 1
+		} else {
+			newPos = i + 1
+		}
 
 		// Skip if new position is not valid (on the grid)
 		if newPos < 0 || newPos >= len(g) {
@@ -156,7 +206,11 @@ func MoveStep(g [gridWidth]Tile) ([gridWidth]Tile, bool) {
 			g[i] = Tile{}    // clear the old location
 			return g, true
 		}
+
 	}
+
+	// for i := len(g) - 1; i >= 0; i-- {
+	// }
 
 	return g, false
 }

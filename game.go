@@ -1,6 +1,8 @@
 package main
 
 import (
+	"sync"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -9,6 +11,8 @@ const inColour = true
 
 type Game struct {
 	*tview.TextView
+
+	mu   sync.Mutex
 	grid *Grid
 }
 
@@ -22,13 +26,16 @@ func NewGame() *Game {
 	textView.SetBackgroundColor(tcell.NewHexColor(gridColour)).
 		SetBorder(true).SetBackgroundColor(tcell.ColorBlack)
 
-	g := Game{textView, NewGrid()}
+	g := Game{textView, sync.Mutex{}, NewGrid()}
 	g.Reset()
 
 	return &g
 }
 
 func (g *Game) ExecuteMove(dir direction) {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
 	// 1. Grid moves and re-renders itself
 	didMove := g.grid.Move(dir, g.render)
 
