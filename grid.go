@@ -87,8 +87,8 @@ func (g *Grid) Render(inColour bool) string {
 	return render
 }
 
-// Move moves all tiles in the specified direction, combining them if appropriate.
-// Returns whether any tiles moved from the move attempt.
+// Move attempts to move all tiles in the specified direction, combining them if appropriate.
+// Returns true if any tiles were moved from the attempt.
 func (g *Grid) Move(dir direction, renderFunc func()) bool {
 	moved := false
 
@@ -107,7 +107,7 @@ func (g *Grid) Move(dir direction, renderFunc func()) bool {
 		if !movedThisTurn {
 			break
 		}
-		time.Sleep(20 * time.Millisecond)
+		time.Sleep(30 * time.Millisecond)
 	}
 
 	// Clear all of the "combined this turn" flags
@@ -158,10 +158,9 @@ func (i *iter) next() int {
 }
 
 func MoveStep(g [gridWidth]Tile, dir direction) ([gridWidth]Tile, bool) {
-	// CURRENTLY ONLY GOES LEFT
 
 	reverse := false
-	if dir == dirLeft {
+	if dir == dirLeft || dir == dirUp {
 		reverse = true
 	}
 
@@ -208,9 +207,6 @@ func MoveStep(g [gridWidth]Tile, dir direction) ([gridWidth]Tile, bool) {
 		}
 
 	}
-
-	// for i := len(g) - 1; i >= 0; i-- {
-	// }
 
 	return g, false
 }

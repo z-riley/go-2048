@@ -226,7 +226,7 @@ func TestMoveStep(t *testing.T) {
 			expected: [4]Tile{{val: 4}, {val: 4, cmb: true}, {val: 0}, {val: 0}},
 			moved:    false,
 		},
-		// 0 0 0 0 --[left]--> 0 0 0 0
+		// 4 0 0 0 --[left]--> 4 0 0 0
 		{
 			input:    [4]Tile{{val: 4}, {val: 0}, {val: 0}, {val: 0}},
 			dir:      dirLeft,

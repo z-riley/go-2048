@@ -36,7 +36,7 @@ func (g *Game) ExecuteMove(dir direction) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
 
-	// 1. Grid moves and re-renders itself
+	// 1. Grid moves and re-renders itself as it goes
 	didMove := g.grid.Move(dir, g.render)
 
 	// 2. Grid spawns tile and re-renders itself
