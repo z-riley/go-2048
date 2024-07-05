@@ -1,69 +1,50 @@
 package main
 
 import (
-	"sync"
-
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
-const inColour = true
-
-type Game struct {
-	mu sync.Mutex
-	*tview.TextView
-
-	updateScoreFunc func()
-
-	grid *Grid
+type game struct {
+	currentScore tview.Primitive
+	bestScore    tview.Primitive
+	resetButton  tview.Primitive
+	title        tview.Primitive
+	arena        *Arena
+	guide        tview.Primitive
 }
 
-// Game returns the game arena widget.
-func NewGame() *Game {
-	textView := tview.NewTextView().
-		SetTextAlign(tview.AlignCenter).
-		SetDynamicColors(true).
-		SetRegions(true).
-		SetChangedFunc(func() { app.Draw() })
-	textView.SetBackgroundColor(tcell.NewHexColor(gridColour)).
-		SetBorder(true).SetBackgroundColor(tcell.ColorBlack)
-
-	g := Game{
-		mu:              sync.Mutex{},
-		TextView:        textView,
-		updateScoreFunc: func() {},
-		grid:            &Grid{},
+func (g *game) UserInput(event *tcell.EventKey) *tcell.EventKey {
+	switch event.Key() {
+	case tcell.KeyUp:
+		go g.ExecuteMove(dirUp)
+	case tcell.KeyDown:
+		go g.ExecuteMove(dirDown)
+	case tcell.KeyLeft:
+		go g.ExecuteMove(dirLeft)
+	case tcell.KeyRight:
+		go g.ExecuteMove(dirRight)
+	case tcell.KeyCtrlR:
+		g.arena.Reset()
 	}
-	g.Reset()
-
-	return &g
+	return event
 }
 
-func (g *Game) ExecuteMove(dir direction) {
-	g.mu.Lock()
-	defer g.mu.Unlock()
+func (g *game) ExecuteMove(dir direction) {
+	g.arena.mu.Lock()
+	defer g.arena.mu.Unlock()
 
 	// 1. Grid moves and re-renders itself as it goes
-	didMove := g.grid.Move(dir, g.render)
+	didMove := g.arena.grid.Move(dir, g.arena.render)
 
 	// 2. Grid spawns tile and re-renders itself
 	if didMove {
-		g.grid.SpawnTile()
+		g.arena.grid.SpawnTile()
 	}
 	// 3. Check win/lose (todo)
 
 	// 4. Update score (todo)
 
 	// 5. Re-render widgets
-	g.render()
-}
-
-// ResetGrid resets the game.
-func (g *Game) Reset() {
-	g.grid.ResetGrid()
-	g.render()
-}
-
-func (g *Game) render() {
-	g.SetText(g.grid.Render(inColour))
+	g.arena.render()
 }

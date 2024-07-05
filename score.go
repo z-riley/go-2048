@@ -17,12 +17,12 @@ func NewScore() *tview.TextView {
 		SetChangedFunc(func() { app.Draw() })
 	titleView.SetBackgroundColor(tcell.ColorBlack).SetBorder(true).SetTitle(" Score ")
 
-	titleView.SetText("999")
+	titleView.SetText("\n\n999")
 
 	return titleView
 }
 
-// UpdateScore updates the score widget to the given number
+// UpdateScore updates the score widget to the given number.
 func (s *Score) UpdateScore(score int) {
 	// TODO:
 }
