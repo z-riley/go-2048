@@ -1,14 +1,16 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
 type game struct {
-	currentScore tview.Primitive
+	currentScore *tview.TextView
 	bestScore    tview.Primitive
-	resetButton  tview.Primitive
+	resetButton  *tview.Button
 	title        tview.Primitive
 	arena        *Arena
 	guide        tview.Primitive
@@ -43,8 +45,8 @@ func (g *game) ExecuteMove(dir direction) {
 	}
 	// 3. Check win/lose (todo)
 
-	// 4. Update score (todo)
+	// 4. Update score
+	g.currentScore.SetText(fmt.Sprintf("\n\n %d", score))
 
-	// 5. Re-render widgets
-	g.arena.render()
+	// 5. Re-render if needed?
 }

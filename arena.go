@@ -13,9 +13,8 @@ type Arena struct {
 	mu sync.Mutex
 	*tview.TextView
 
-	updateScoreFunc func()
-
-	grid *Grid
+	grid  *Grid
+	score int
 }
 
 // NewArena returns the game arena arena widget.
@@ -29,10 +28,9 @@ func NewArena() *Arena {
 		SetBorder(true).SetBackgroundColor(tcell.ColorBlack)
 
 	a := Arena{
-		mu:              sync.Mutex{},
-		TextView:        textView,
-		updateScoreFunc: func() {},
-		grid:            &Grid{},
+		mu:       sync.Mutex{},
+		TextView: textView,
+		grid:     &Grid{},
 	}
 	a.Reset()
 
@@ -41,6 +39,7 @@ func NewArena() *Arena {
 
 // ResetGrid resets the arena.
 func (a *Arena) Reset() {
+	score = 0
 	a.grid.ResetGrid()
 	a.render()
 }

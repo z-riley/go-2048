@@ -27,6 +27,8 @@ const (
 	dirRight
 )
 
+var score = 0
+
 // Grid is the grid arena for the game. Position {0,0} is the top left square.
 type Grid struct {
 	tiles [gridWidth][gridHeight]Tile
@@ -175,8 +177,9 @@ func (g *Grid) clone() *Grid {
 }
 
 // moveStep executes one part of the a move. Call multiple times until false
-// is returned to complete a full move.
+// is returned to complete a full move. Optional: variable to place the number of points gained by the step.
 func moveStep(g [gridWidth]Tile, dir direction) ([gridWidth]Tile, bool) {
+
 	// Iterate in the opposite direction to the move
 	reverse := false
 	if dir == dirLeft || dir == dirUp {
@@ -209,6 +212,7 @@ func moveStep(g [gridWidth]Tile, dir direction) ([gridWidth]Tile, bool) {
 		if g[newPos].val == g[i].val && !alreadyCombined {
 			g[newPos].val += g[i].val // update the new location
 			g[newPos].cmb = true
+			score += g[newPos].val
 			g[i].val = emptyTile // clear the old location
 			return g, true
 

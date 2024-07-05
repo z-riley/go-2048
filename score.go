@@ -17,7 +17,7 @@ func NewScore() *tview.TextView {
 		SetChangedFunc(func() { app.Draw() })
 	titleView.SetBackgroundColor(tcell.ColorBlack).SetBorder(true).SetTitle(" Score ")
 
-	titleView.SetText("\n\n999")
+	titleView.SetText("\n\n 0")
 
 	return titleView
 }
