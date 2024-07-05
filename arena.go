@@ -10,9 +10,9 @@ import (
 const inColour = true
 
 type Arena struct {
-	mu sync.Mutex
 	*tview.TextView
 
+	mu   sync.Mutex
 	grid *Grid
 }
 
@@ -27,8 +27,8 @@ func NewArena() *Arena {
 		SetBorder(true).SetBackgroundColor(tcell.ColorBlack)
 
 	a := Arena{
-		mu:       sync.Mutex{},
 		TextView: textView,
+		mu:       sync.Mutex{},
 		grid:     NewGrid(),
 	}
 	a.Reset()

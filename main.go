@@ -8,14 +8,15 @@ var app = tview.NewApplication()
 
 func main() {
 
-	game := game{
+	game := Game{
 		currentScore: NewScore(),
 		highScore:    NewHighScore(),
-		resetButton:  ResetButton(),
+		exitButton:   NewExitButton(),
 		title:        NewTitle(),
 		arena:        NewArena(),
 		guide:        tview.NewBox().SetBorder(true).SetTitle(" How to Play "),
 	}
+	game.resetButton = NewResetButton(game.Reset)
 
 	app.SetInputCapture(game.UserInput)
 
@@ -23,8 +24,8 @@ func main() {
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(game.currentScore, 7, 0, false).
 			AddItem(game.highScore, 7, 0, false).
-			AddItem(tview.NewBox(), 0, 1, false).
-			AddItem(game.resetButton, 7, 0, false),
+			AddItem(game.resetButton, 7, 0, false).
+			AddItem(game.exitButton, 7, 0, false),
 			16, 0, false).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(game.title, 6, 1, false).

@@ -5,18 +5,19 @@ import (
 	"github.com/rivo/tview"
 )
 
-// game is the top-level struct for the game.
-type game struct {
+// Game is the top-level struct for the Game.
+type Game struct {
 	currentScore *Score
 	highScore    *HighScore
-	resetButton  *tview.Button
+	resetButton  *ResetButton
+	exitButton   *ExitButton
 	title        *Title
 	arena        *Arena
 	guide        tview.Primitive
 }
 
 // UserInput is the callback given to the tview app to handle keypresses.
-func (g *game) UserInput(event *tcell.EventKey) *tcell.EventKey {
+func (g *Game) UserInput(event *tcell.EventKey) *tcell.EventKey {
 	switch event.Key() {
 	case tcell.KeyUp:
 		go g.ExecuteMove(dirUp)
@@ -33,7 +34,7 @@ func (g *game) UserInput(event *tcell.EventKey) *tcell.EventKey {
 }
 
 // ExecuteMove carries out a move (up, down, left, right) in the given direction.
-func (g *game) ExecuteMove(dir direction) {
+func (g *Game) ExecuteMove(dir direction) {
 	g.arena.mu.Lock()
 	defer g.arena.mu.Unlock()
 
@@ -56,14 +57,14 @@ func (g *game) ExecuteMove(dir direction) {
 }
 
 // Reset resets the game.
-func (g *game) Reset() {
+func (g *Game) Reset() {
 	score = 0
 	g.arena.Reset()
 	g.currentScore.Reset()
 }
 
 // updateScore updates the displayed current score.
-func (g *game) updateScore() {
+func (g *Game) updateScore() {
 	g.currentScore.Update()
 	g.highScore.Update()
 }
