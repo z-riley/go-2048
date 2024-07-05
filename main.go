@@ -12,7 +12,7 @@ func main() {
 		currentScore: NewScore(),
 		highScore:    NewHighScore(),
 		resetButton:  ResetButton(),
-		title:        Title(),
+		title:        NewTitle(),
 		arena:        NewArena(),
 		guide:        tview.NewBox().SetBorder(true).SetTitle(" How to Play "),
 	}

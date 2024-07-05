@@ -10,7 +10,7 @@ type game struct {
 	currentScore *Score
 	highScore    *HighScore
 	resetButton  *tview.Button
-	title        tview.Primitive
+	title        *Title
 	arena        *Arena
 	guide        tview.Primitive
 }
@@ -37,19 +37,22 @@ func (g *game) ExecuteMove(dir direction) {
 	g.arena.mu.Lock()
 	defer g.arena.mu.Unlock()
 
-	// 1. Grid moves and re-renders itself as it goes
+	// Attempt to move and spawn new tile
 	didMove := g.arena.grid.Move(dir, g.arena.render)
-
-	// 2. Grid spawns tile and re-renders itself
 	if didMove {
 		g.arena.grid.SpawnTile()
 	}
-	// 3. Check win/lose (todo)
 
-	// 4. Update the score widget
 	g.updateScore()
 
-	// 5. Re-render if needed?
+	lose := false
+	if lose {
+		// TODO: check for lose
+	}
+
+	if score > 2048 {
+		g.title.Win()
+	}
 }
 
 // Reset resets the game.
