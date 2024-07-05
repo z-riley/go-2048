@@ -27,8 +27,6 @@ const (
 	dirRight
 )
 
-var score = 0
-
 // Grid is the grid arena for the game. Position {0,0} is the top left square.
 type Grid struct {
 	tiles [gridWidth][gridHeight]Tile
@@ -36,8 +34,7 @@ type Grid struct {
 
 // NewGrid initialises a new grid with a random starting arrangement.
 func NewGrid() *Grid {
-	g := Grid{}
-	return &g
+	return &Grid{}
 }
 
 // ResetGrid resets the grid to a start-of-game state, spawning two '2' tiles in random locations.

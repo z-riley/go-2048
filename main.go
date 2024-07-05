@@ -10,7 +10,7 @@ func main() {
 
 	game := game{
 		currentScore: NewScore(),
-		bestScore:    tview.NewBox().SetBorder(true).SetTitle(" Best "),
+		highScore:    NewHighScore(),
 		resetButton:  ResetButton(),
 		title:        Title(),
 		arena:        NewArena(),
@@ -22,7 +22,7 @@ func main() {
 	flex := tview.NewFlex().
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(game.currentScore, 7, 0, false).
-			AddItem(game.bestScore, 7, 0, false).
+			AddItem(game.highScore, 7, 0, false).
 			AddItem(tview.NewBox(), 0, 1, false).
 			AddItem(game.resetButton, 7, 0, false),
 			16, 0, false).
