@@ -10,8 +10,8 @@ var app = tview.NewApplication()
 func main() {
 
 	game := Game{
-		currentScore: NewScore(),
-		highScore:    NewHighScore(),
+		currentScore: widget.NewScore(),
+		highScore:    widget.NewHighScore(),
 		title:        widget.NewTitle(),
 		arena:        NewArena(),
 		guide:        widget.NewGuide(),

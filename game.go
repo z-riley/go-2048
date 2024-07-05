@@ -7,8 +7,8 @@ import (
 
 // Game is the top-level struct for the Game.
 type Game struct {
-	currentScore *Score
-	highScore    *HighScore
+	currentScore *widget.Score
+	highScore    *widget.HighScore
 	resetButton  *widget.ResetButton
 	exitButton   *widget.ExitButton
 	title        *widget.Title
@@ -51,14 +51,14 @@ func (g *Game) ExecuteMove(dir direction) {
 		// TODO: check for lose
 	}
 
-	if score > 2048 {
+	if widget.CurrentScore() >= 2048 {
 		g.title.Win()
 	}
 }
 
 // Reset resets the game.
 func (g *Game) Reset() {
-	score = 0
+	widget.SetCurrentScore(0)
 	g.arena.Reset()
 	g.currentScore.Reset()
 }

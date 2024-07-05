@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/zac460/go-2048/pkg/iter"
+	"github.com/zac460/go-2048/pkg/widget"
 )
 
 type direction int
@@ -209,7 +210,7 @@ func moveStep(g [gridWidth]Tile, dir direction) ([gridWidth]Tile, bool) {
 		if g[newPos].val == g[i].val && !alreadyCombined {
 			g[newPos].val += g[i].val // update the new location
 			g[newPos].cmb = true
-			score += g[newPos].val
+			widget.AddToCurrentScore(g[newPos].val)
 			g[i].val = emptyTile // clear the old location
 			return g, true
 
