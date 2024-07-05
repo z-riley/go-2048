@@ -1,4 +1,4 @@
-package main
+package widget
 
 import (
 	"github.com/gdamore/tcell/v2"
@@ -24,10 +24,7 @@ type Title struct{ *tview.TextView }
 func NewTitle() *Title {
 	view := tview.NewTextView().
 		SetTextAlign(tview.AlignCenter).
-		SetDynamicColors(true).
-		SetChangedFunc(func() {
-			app.Draw()
-		})
+		SetDynamicColors(true)
 	view.SetBackgroundColor(tcell.ColorBlack).SetBackgroundColor(tcell.ColorBlack)
 	view.SetText(colourNormal + title2048)
 	return &Title{view}

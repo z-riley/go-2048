@@ -2,18 +2,18 @@ package main
 
 import (
 	"github.com/gdamore/tcell/v2"
-	"github.com/rivo/tview"
+	"github.com/zac460/go-2048/pkg/widget"
 )
 
 // Game is the top-level struct for the Game.
 type Game struct {
 	currentScore *Score
 	highScore    *HighScore
-	resetButton  *ResetButton
-	exitButton   *ExitButton
-	title        *Title
+	resetButton  *widget.ResetButton
+	exitButton   *widget.ExitButton
+	title        *widget.Title
 	arena        *Arena
-	guide        tview.Primitive
+	guide        *widget.Guide
 }
 
 // UserInput is the callback given to the tview app to handle keypresses.

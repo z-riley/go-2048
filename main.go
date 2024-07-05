@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/rivo/tview"
+	"github.com/zac460/go-2048/pkg/widget"
 )
 
 var app = tview.NewApplication()
@@ -11,12 +12,12 @@ func main() {
 	game := Game{
 		currentScore: NewScore(),
 		highScore:    NewHighScore(),
-		exitButton:   NewExitButton(),
-		title:        NewTitle(),
+		title:        widget.NewTitle(),
 		arena:        NewArena(),
-		guide:        tview.NewBox().SetBorder(true).SetTitle(" How to Play "),
+		guide:        widget.NewGuide(),
 	}
-	game.resetButton = NewResetButton(game.Reset)
+	game.resetButton = widget.NewResetButton(game.Reset)
+	game.exitButton = widget.NewExitButton(app.Stop)
 
 	app.SetInputCapture(game.UserInput)
 
