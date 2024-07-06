@@ -1,4 +1,4 @@
-package main
+package arena
 
 import (
 	"fmt"
@@ -16,13 +16,13 @@ func TestRender(t *testing.T) {
 			exponent++
 		}
 	}
-	fmt.Println(g.Render(true))
+	fmt.Println(g.String(true))
 }
 
 func TestMoveStep(t *testing.T) {
 	type tc struct {
 		input    [4]Tile
-		dir      direction
+		dir      Direction
 		expected [4]Tile
 		moved    bool
 	}
@@ -31,70 +31,70 @@ func TestMoveStep(t *testing.T) {
 		// 2 2 2 2 --[left]--> 4 4 0 0
 		{
 			input:    [4]Tile{{val: 2}, {val: 2}, {val: 2}, {val: 2}},
-			dir:      dirLeft,
+			dir:      DirLeft,
 			expected: [4]Tile{{val: 2}, {val: 2}, {val: 4, cmb: true}, {val: 0}},
 			moved:    true,
 		},
 		{
 			input:    [4]Tile{{val: 2}, {val: 2}, {val: 4, cmb: true}, {val: 0}},
-			dir:      dirLeft,
+			dir:      DirLeft,
 			expected: [4]Tile{{val: 4, cmb: true}, {val: 0}, {val: 4, cmb: true}, {val: 0}},
 			moved:    true,
 		},
 		{
 			input:    [4]Tile{{val: 4, cmb: true}, {val: 0}, {val: 4, cmb: true}, {val: 0}},
-			dir:      dirLeft,
+			dir:      DirLeft,
 			expected: [4]Tile{{val: 4, cmb: true}, {val: 4, cmb: true}, {val: 0}, {val: 0}},
 			moved:    true,
 		},
 		// 0 4 2 2 --[left]--> 4 4 0 0
 		{
 			input:    [4]Tile{{val: 0}, {val: 4}, {val: 2}, {val: 2}},
-			dir:      dirLeft,
+			dir:      DirLeft,
 			expected: [4]Tile{{val: 0}, {val: 4}, {val: 4, cmb: true}, {val: 0}},
 			moved:    true,
 		},
 		{
 			input:    [4]Tile{{val: 0}, {val: 4}, {val: 4, cmb: true}, {val: 0}},
-			dir:      dirLeft,
+			dir:      DirLeft,
 			expected: [4]Tile{{val: 4}, {val: 0}, {val: 4, cmb: true}, {val: 0}},
 			moved:    true,
 		},
 		{
 			input:    [4]Tile{{val: 4}, {val: 0}, {val: 4, cmb: true}, {val: 0}},
-			dir:      dirLeft,
+			dir:      DirLeft,
 			expected: [4]Tile{{val: 4}, {val: 4, cmb: true}, {val: 0}, {val: 0}},
 			moved:    true,
 		},
 		{
 			input:    [4]Tile{{val: 4}, {val: 4, cmb: true}, {val: 0}, {val: 0}},
-			dir:      dirLeft,
+			dir:      DirLeft,
 			expected: [4]Tile{{val: 4}, {val: 4, cmb: true}, {val: 0}, {val: 0}},
 			moved:    false,
 		},
 		// 4 0 0 0 --[left]--> 4 0 0 0
 		{
 			input:    [4]Tile{{val: 4}, {val: 0}, {val: 0}, {val: 0}},
-			dir:      dirLeft,
+			dir:      DirLeft,
 			expected: [4]Tile{{val: 4}, {val: 0}, {val: 0}, {val: 0}},
 			moved:    false,
 		},
 		// 2 2 2 2 --[right]--> 4 4 0 0
 		{
 			input:    [4]Tile{{val: 2}, {val: 2}, {val: 2}, {val: 2}},
-			dir:      dirRight,
+			dir:      DirRight,
 			expected: [4]Tile{{val: 0}, {val: 4, cmb: true}, {val: 2}, {val: 2}},
 			moved:    true,
 		},
 		{
 			input:    [4]Tile{{val: 0}, {val: 4, cmb: true}, {val: 2}, {val: 2}},
-			dir:      dirRight,
+			dir:      DirRight,
 			expected: [4]Tile{{val: 0}, {val: 4, cmb: true}, {val: 0}, {val: 4, cmb: true}},
 			moved:    true,
 		},
 		{
 			input:    [4]Tile{{val: 0}, {val: 4, cmb: true}, {val: 0}, {val: 4, cmb: true}},
-			dir:      dirRight,
+			dir:      DirRight,
 			expected: [4]Tile{{val: 0}, {val: 0}, {val: 4, cmb: true}, {val: 4, cmb: true}},
 			moved:    true,
 		},

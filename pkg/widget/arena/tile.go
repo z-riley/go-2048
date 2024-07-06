@@ -1,4 +1,4 @@
-package main
+package arena
 
 import (
 	"fmt"
@@ -6,7 +6,9 @@ import (
 )
 
 const (
-	emptyTile = 0
+	TileWidth  = 7
+	TileHeight = 3
+	emptyTile  = 0
 )
 
 type Tile struct {
@@ -32,7 +34,7 @@ func (t *Tile) RenderTileNumber(colour bool) string {
 
 // RenderTilePadding returns the top or bottom padding of a tile (value not displayed).
 func (t *Tile) RenderTilePadding(colour bool) string {
-	padding := strings.Repeat(" ", tileWidth)
+	padding := strings.Repeat(" ", TileWidth)
 	if colour {
 		return t.colour() + padding
 	} else {
@@ -81,7 +83,7 @@ func (t *Tile) colour() string {
 // paddedString generates a padded version of the tile's value so it's centred on the tile.
 func (t *Tile) paddedString() string {
 	if t.val == emptyTile {
-		return strings.Repeat(" ", tileWidth)
+		return strings.Repeat(" ", TileWidth)
 	}
 
 	s := fmt.Sprintf("%d", t.val)

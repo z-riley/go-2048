@@ -4,9 +4,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-type ResetButton struct {
-	*tview.Button
-}
+type ResetButton struct{ *tview.Button }
 
 // ResetButton returns the reset button widget. Provide a callback to be run
 // when the button is pressed.

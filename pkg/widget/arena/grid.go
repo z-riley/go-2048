@@ -1,36 +1,17 @@
-package main
+package arena
 
 import (
 	"math/rand"
 	"reflect"
 	"time"
 
-	"github.com/zac460/go-2048/pkg/iter"
+	"github.com/zac460/go-2048/pkg/util"
 	"github.com/zac460/go-2048/pkg/widget"
-)
-
-type direction int
-
-const (
-	// Game setup
-	gridWidth        = 4
-	gridHeight       = 4
-	tileWidth        = 7
-	tileHeight       = 3
-	gridColour int32 = 0xbbada0
-)
-
-const (
-	// Direction enumerations
-	dirUp direction = iota
-	dirDown
-	dirLeft
-	dirRight
 )
 
 // Grid is the grid arena for the game. Position {0,0} is the top left square.
 type Grid struct {
-	tiles [gridWidth][gridHeight]Tile
+	tiles [GridWidth][GridHeight]Tile
 }
 
 // NewGrid initialises a new grid with a random starting arrangement.
@@ -40,21 +21,21 @@ func NewGrid() *Grid {
 
 // ResetGrid resets the grid to a start-of-game state, spawning two '2' tiles in random locations.
 func (g *Grid) ResetGrid() {
-	g.tiles = [gridWidth][gridHeight]Tile{}
+	g.tiles = [GridWidth][GridHeight]Tile{}
 	// Place two '2' tiles in two random positions
 	type pos struct{ x, y int }
-	tile1 := pos{rand.Intn(gridWidth), rand.Intn(gridHeight)}
-	tile2 := pos{rand.Intn(gridWidth), rand.Intn(gridHeight)}
+	tile1 := pos{rand.Intn(GridWidth), rand.Intn(GridHeight)}
+	tile2 := pos{rand.Intn(GridWidth), rand.Intn(GridHeight)}
 	for reflect.DeepEqual(tile1, tile2) {
 		// Try again until they're unique
-		tile2 = pos{rand.Intn(gridWidth), rand.Intn(gridHeight)}
+		tile2 = pos{rand.Intn(GridWidth), rand.Intn(GridHeight)}
 	}
 	g.tiles[tile1.x][tile1.y].val = 2
 	g.tiles[tile2.x][tile2.y].val = 2
 }
 
-// Render constructs the grid arena into a single string.
-func (g *Grid) Render(inColour bool) string {
+// String constructs the grid arena into a single string. Set inColour to include tview colour tags.
+func (g *Grid) String(inColour bool) string {
 	type tileSection int
 	const (
 		topSection tileSection = 0
@@ -65,19 +46,19 @@ func (g *Grid) Render(inColour bool) string {
 	render := "\n"
 
 	// For every row of tiles...
-	for row := 0; row < gridHeight; row++ {
+	for row := 0; row < GridHeight; row++ {
 		// For row of text that forms a tile...
-		for x := 0; x < tileHeight; x++ {
+		for x := 0; x < TileHeight; x++ {
 			// Alternate between topSection, midSection, botSection
-			switch tileSection(x % tileHeight) {
+			switch tileSection(x % TileHeight) {
 			case topSection, botSection:
 				// Construct string of coloured space
-				for col := range gridWidth {
+				for col := range GridWidth {
 					render += g.tiles[row][col].RenderTilePadding(inColour)
 				}
 			case midSection:
 				// Construct string of coloured numbers with padding
-				for col := range gridWidth {
+				for col := range GridWidth {
 					render += g.tiles[row][col].RenderTileNumber(inColour)
 				}
 			}
@@ -89,26 +70,26 @@ func (g *Grid) Render(inColour bool) string {
 	return render
 }
 
-// Move attempts to move all tiles in the specified direction, combining them if appropriate.
+// move attempts to move all tiles in the specified direction, combining them if appropriate.
 // Returns true if any tiles were moved from the attempt.
-func (g *Grid) Move(dir direction, renderFunc func()) bool {
+func (g *Grid) move(dir Direction, renderFunc func()) bool {
 	moved := false
 
 	// Execute steps, re-rendering each time
 	for {
 		movedThisTurn := false
-		for row := 0; row < gridHeight; row++ {
+		for row := 0; row < GridHeight; row++ {
 			var rowMoved bool
 
 			// The MoveStep function only operates on a row, so to move vertically
 			// we must transpose the grid before and after the move operation.
-			if dir == dirUp || dir == dirDown {
+			if dir == DirUp || dir == DirDown {
 				g.tiles = transpose(g.tiles)
 			}
 
 			g.tiles[row], rowMoved = moveStep(g.tiles[row], dir)
 
-			if dir == dirUp || dir == dirDown {
+			if dir == DirUp || dir == DirDown {
 				g.tiles = transpose(g.tiles)
 			}
 
@@ -125,8 +106,8 @@ func (g *Grid) Move(dir direction, renderFunc func()) bool {
 	}
 
 	// Clear all of the "combined this turn" flags
-	for i := 0; i < gridWidth; i++ {
-		for j := 0; j < gridHeight; j++ {
+	for i := 0; i < GridWidth; i++ {
+		for j := 0; j < GridHeight; j++ {
 			g.tiles[i][j].cmb = false
 		}
 	}
@@ -142,10 +123,10 @@ func (g *Grid) SpawnTile() {
 		val = 4
 	}
 
-	x, y := rand.Intn(gridWidth), rand.Intn(gridHeight)
+	x, y := rand.Intn(GridWidth), rand.Intn(GridHeight)
 	for g.tiles[x][y].val != emptyTile {
 		// Try again until they're unique
-		x, y = rand.Intn(gridWidth), rand.Intn(gridHeight)
+		x, y = rand.Intn(GridWidth), rand.Intn(GridHeight)
 	}
 
 	g.tiles[x][y].val = val
@@ -154,8 +135,8 @@ func (g *Grid) SpawnTile() {
 // string arranges the grid into a human readable string for debugging purposes.
 func (g *Grid) string() string {
 	var out string
-	for row := 0; row < gridHeight; row++ {
-		for col := range gridWidth {
+	for row := 0; row < GridHeight; row++ {
+		for col := range GridWidth {
 			out += g.tiles[row][col].RenderTileNumber(false) + "|"
 		}
 		out += "\n"
@@ -166,8 +147,8 @@ func (g *Grid) string() string {
 // clone returns a deep copy for debugging purposes.
 func (g *Grid) clone() *Grid {
 	newGrid := &Grid{}
-	for a := range gridHeight {
-		for b := range gridWidth {
+	for a := range GridHeight {
+		for b := range GridWidth {
 			newGrid.tiles[a][b] = g.tiles[a][b]
 		}
 	}
@@ -176,14 +157,14 @@ func (g *Grid) clone() *Grid {
 
 // moveStep executes one part of the a move. Call multiple times until false
 // is returned to complete a full move. Optional: variable to place the number of points gained by the step.
-func moveStep(g [gridWidth]Tile, dir direction) ([gridWidth]Tile, bool) {
+func moveStep(g [GridWidth]Tile, dir Direction) ([GridWidth]Tile, bool) {
 
 	// Iterate in the opposite direction to the move
 	reverse := false
-	if dir == dirLeft || dir == dirUp {
+	if dir == DirLeft || dir == DirUp {
 		reverse = true
 	}
-	iter := iter.NewIter(len(g), reverse)
+	iter := util.NewIter(len(g), reverse)
 
 	for iter.HasNext() {
 		// Calculate the hypothetical next position for the tile
@@ -230,10 +211,10 @@ func moveStep(g [gridWidth]Tile, dir direction) ([gridWidth]Tile, bool) {
 }
 
 // transpose returns a tranposed version of the grid.
-func transpose(matrix [gridWidth][gridHeight]Tile) [gridHeight][gridWidth]Tile {
-	var transposed [gridHeight][gridWidth]Tile
-	for i := 0; i < gridWidth; i++ {
-		for j := 0; j < gridHeight; j++ {
+func transpose(matrix [GridWidth][GridHeight]Tile) [GridHeight][GridWidth]Tile {
+	var transposed [GridHeight][GridWidth]Tile
+	for i := 0; i < GridWidth; i++ {
+		for j := 0; j < GridHeight; j++ {
 			transposed[j][i] = matrix[i][j]
 		}
 	}

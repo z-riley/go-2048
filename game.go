@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/zac460/go-2048/pkg/widget"
+	"github.com/zac460/go-2048/pkg/widget/arena"
 )
 
 // Game is the top-level struct for the Game.
@@ -12,7 +13,7 @@ type Game struct {
 	resetButton  *widget.ResetButton
 	exitButton   *widget.ExitButton
 	title        *widget.Title
-	arena        *Arena
+	arena        *arena.Arena
 	guide        *widget.Guide
 }
 
@@ -20,13 +21,13 @@ type Game struct {
 func (g *Game) UserInput(event *tcell.EventKey) *tcell.EventKey {
 	switch event.Key() {
 	case tcell.KeyUp:
-		go g.ExecuteMove(dirUp)
+		go g.ExecuteMove(arena.DirUp)
 	case tcell.KeyDown:
-		go g.ExecuteMove(dirDown)
+		go g.ExecuteMove(arena.DirDown)
 	case tcell.KeyLeft:
-		go g.ExecuteMove(dirLeft)
+		go g.ExecuteMove(arena.DirLeft)
 	case tcell.KeyRight:
-		go g.ExecuteMove(dirRight)
+		go g.ExecuteMove(arena.DirRight)
 	case tcell.KeyCtrlR:
 		g.Reset()
 	}
@@ -34,15 +35,11 @@ func (g *Game) UserInput(event *tcell.EventKey) *tcell.EventKey {
 }
 
 // ExecuteMove carries out a move (up, down, left, right) in the given direction.
-func (g *Game) ExecuteMove(dir direction) {
-	g.arena.mu.Lock()
-	defer g.arena.mu.Unlock()
+func (g *Game) ExecuteMove(dir arena.Direction) {
+	g.arena.Mu.Lock()
+	defer g.arena.Mu.Unlock()
 
-	// Attempt to move and spawn new tile
-	didMove := g.arena.grid.Move(dir, g.arena.render)
-	if didMove {
-		g.arena.grid.SpawnTile()
-	}
+	g.arena.Move(dir)
 
 	g.updateScore()
 

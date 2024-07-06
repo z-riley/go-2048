@@ -1,4 +1,4 @@
-package iter
+package util
 
 // iter is a genetic iterator which can iterate forwards or backwards.
 type iter struct {
