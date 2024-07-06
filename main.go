@@ -6,9 +6,8 @@ import (
 	"github.com/zac460/go-2048/pkg/widget/arena"
 )
 
-var app = tview.NewApplication()
-
 func main() {
+	app := tview.NewApplication()
 
 	game := Game{
 		currentScore: widget.NewScore(),
