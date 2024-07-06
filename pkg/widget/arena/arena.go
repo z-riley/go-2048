@@ -43,7 +43,7 @@ func NewArena(app *tview.Application) *Arena {
 	a := Arena{
 		TextView: textView,
 		Mu:       sync.Mutex{},
-		grid:     NewGrid(),
+		grid:     newGrid(),
 	}
 	a.Reset()
 
@@ -52,7 +52,7 @@ func NewArena(app *tview.Application) *Arena {
 
 // ResetGrid resets the arena.
 func (a *Arena) Reset() {
-	a.grid.ResetGrid()
+	a.grid.resetGrid()
 	a.render()
 }
 
@@ -60,10 +60,10 @@ func (a *Arena) Reset() {
 func (a *Arena) Move(dir Direction) {
 	didMove := a.grid.move(dir, a.render)
 	if didMove {
-		a.grid.SpawnTile()
+		a.grid.spawnTile()
 	}
 }
 
 func (a *Arena) render() {
-	a.SetText(a.grid.String(inColour))
+	a.SetText(a.grid.string(inColour))
 }

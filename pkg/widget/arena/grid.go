@@ -14,13 +14,13 @@ type Grid struct {
 	tiles [GridWidth][GridHeight]Tile
 }
 
-// NewGrid initialises a new grid with a random starting arrangement.
-func NewGrid() *Grid {
+// newGrid initialises a new grid with a random starting arrangement.
+func newGrid() *Grid {
 	return &Grid{}
 }
 
-// ResetGrid resets the grid to a start-of-game state, spawning two '2' tiles in random locations.
-func (g *Grid) ResetGrid() {
+// resetGrid resets the grid to a start-of-game state, spawning two '2' tiles in random locations.
+func (g *Grid) resetGrid() {
 	g.tiles = [GridWidth][GridHeight]Tile{}
 	// Place two '2' tiles in two random positions
 	type pos struct{ x, y int }
@@ -34,8 +34,8 @@ func (g *Grid) ResetGrid() {
 	g.tiles[tile2.x][tile2.y].val = 2
 }
 
-// String constructs the grid arena into a single string. Set inColour to include tview colour tags.
-func (g *Grid) String(inColour bool) string {
+// string constructs the grid arena into a single string. Set inColour to include tview colour tags.
+func (g *Grid) string(inColour bool) string {
 	type tileSection int
 	const (
 		topSection tileSection = 0
@@ -54,12 +54,12 @@ func (g *Grid) String(inColour bool) string {
 			case topSection, botSection:
 				// Construct string of coloured space
 				for col := range GridWidth {
-					render += g.tiles[row][col].RenderTilePadding(inColour)
+					render += g.tiles[row][col].renderTilePadding(inColour)
 				}
 			case midSection:
 				// Construct string of coloured numbers with padding
 				for col := range GridWidth {
-					render += g.tiles[row][col].RenderTileNumber(inColour)
+					render += g.tiles[row][col].renderTileNumber(inColour)
 				}
 			}
 			render += "\n"
@@ -68,6 +68,23 @@ func (g *Grid) String(inColour bool) string {
 
 	render = render[:len(render)-2] // remove final coloured newline
 	return render
+}
+
+// spawnTile adds a new tile in a random location on the grid.
+// The value of the tile is 2 (90% chance) or 4 (10% chance).
+func (g *Grid) spawnTile() {
+	val := 2
+	if rand.Float64() >= 0.9 {
+		val = 4
+	}
+
+	x, y := rand.Intn(GridWidth), rand.Intn(GridHeight)
+	for g.tiles[x][y].val != emptyTile {
+		// Try again until they're unique
+		x, y = rand.Intn(GridWidth), rand.Intn(GridHeight)
+	}
+
+	g.tiles[x][y].val = val
 }
 
 // move attempts to move all tiles in the specified direction, combining them if appropriate.
@@ -115,29 +132,12 @@ func (g *Grid) move(dir Direction, renderFunc func()) bool {
 	return moved
 }
 
-// SpawnTile adds a new tile in a random location on the grid.
-// The value of the tile is 2 (90% chance) or 4 (10% chance).
-func (g *Grid) SpawnTile() {
-	val := 2
-	if rand.Float64() >= 0.9 {
-		val = 4
-	}
-
-	x, y := rand.Intn(GridWidth), rand.Intn(GridHeight)
-	for g.tiles[x][y].val != emptyTile {
-		// Try again until they're unique
-		x, y = rand.Intn(GridWidth), rand.Intn(GridHeight)
-	}
-
-	g.tiles[x][y].val = val
-}
-
-// string arranges the grid into a human readable string for debugging purposes.
-func (g *Grid) string() string {
+// debug arranges the grid into a human readable debug for debugging purposes.
+func (g *Grid) debug() string {
 	var out string
 	for row := 0; row < GridHeight; row++ {
 		for col := range GridWidth {
-			out += g.tiles[row][col].RenderTileNumber(false) + "|"
+			out += g.tiles[row][col].renderTileNumber(false) + "|"
 		}
 		out += "\n"
 	}

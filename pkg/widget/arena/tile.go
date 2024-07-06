@@ -16,15 +16,15 @@ type Tile struct {
 	cmb bool // flag for whether tile was combined in the current turn
 }
 
-// NewTile spawns a new tile with a starting value of 2.
-func NewTile() *Tile {
+// newTile spawns a new tile with a starting value of 2.
+func newTile() *Tile {
 	return &Tile{
 		val: 2,
 	}
 }
 
-// RenderTileNumber returns the middle section of a tile, which displays its value.
-func (t *Tile) RenderTileNumber(colour bool) string {
+// renderTileNumber returns the middle section of a tile, which displays its value.
+func (t *Tile) renderTileNumber(colour bool) string {
 	if colour {
 		return t.colour() + t.paddedString()
 	} else {
@@ -32,8 +32,8 @@ func (t *Tile) RenderTileNumber(colour bool) string {
 	}
 }
 
-// RenderTilePadding returns the top or bottom padding of a tile (value not displayed).
-func (t *Tile) RenderTilePadding(colour bool) string {
+// renderTilePadding returns the top or bottom padding of a tile (value not displayed).
+func (t *Tile) renderTilePadding(colour bool) string {
 	padding := strings.Repeat(" ", TileWidth)
 	if colour {
 		return t.colour() + padding
@@ -49,7 +49,6 @@ func (t *Tile) colour() string {
 	case emptyTile:
 		return "[#7b6b61:#cdc1b4]"
 	case 2:
-		// TODO: set correct font colours
 		return "[#7b6b61:#ece5db]"
 	case 4:
 		return "[#7b6b61:#ebe0ca]"

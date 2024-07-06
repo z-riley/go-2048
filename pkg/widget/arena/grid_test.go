@@ -16,7 +16,7 @@ func TestRender(t *testing.T) {
 			exponent++
 		}
 	}
-	fmt.Println(g.String(true))
+	fmt.Println(g.string(true))
 }
 
 func TestMoveStep(t *testing.T) {
@@ -126,4 +126,8 @@ func TestTranspose(t *testing.T) {
 	if !reflect.DeepEqual(expected, got) {
 		t.Errorf("\nExpected:\n<%v>\nGot:\n<%v>", expected, got)
 	}
+}
+
+func TestX(t *testing.T) {
+
 }
