@@ -19,7 +19,7 @@ type Game struct {
 
 // UserInput is the callback given to the tview app to handle keypresses.
 func (g *Game) UserInput(event *tcell.EventKey) *tcell.EventKey {
-switch event.Key() {
+	switch event.Key() {
 	case tcell.KeyUp:
 		go g.ExecuteMove(arena.DirUp)
 	case tcell.KeyDown:
@@ -43,14 +43,15 @@ func (g *Game) ExecuteMove(dir arena.Direction) {
 
 	g.updateScore()
 
-	lose := false
-	if lose {
-		// TODO: check for lose
+	if g.arena.IsLoss() {
+		g.title.Lose()
 	}
 
+	// FIXME: this should check for highest tile, not current score
 	if widget.CurrentScore() >= 2048 {
 		g.title.Win()
 	}
+
 }
 
 // Reset resets the game.
@@ -58,6 +59,7 @@ func (g *Game) Reset() {
 	widget.SetCurrentScore(0)
 	g.arena.Reset()
 	g.currentScore.Reset()
+	g.title.Reset()
 }
 
 // updateScore updates the displayed current score.

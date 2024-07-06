@@ -38,3 +38,8 @@ func (t *Title) Win() {
 func (t *Title) Lose() {
 	t.SetText(colourLose + title2048)
 }
+
+// Reset sets the apperance of the title to its original state.
+func (t *Title) Reset() {
+	t.SetText(colourNormal + title2048)
+}

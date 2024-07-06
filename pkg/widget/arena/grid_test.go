@@ -128,6 +128,61 @@ func TestTranspose(t *testing.T) {
 	}
 }
 
-func TestX(t *testing.T) {
+func TestIsLoss(t *testing.T) {
+	type tc struct {
+		input    Grid
+		expected bool
+	}
 
+	for _, tc := range []tc{
+		{
+			input: Grid{
+				tiles: [4][4]Tile{
+					{{val: 2}, {val: 0}, {val: 8}, {val: 0}},
+					{{val: 0}, {val: 0}, {val: 0}, {val: 0}},
+					{{val: 0}, {val: 4}, {val: 0}, {val: 0}},
+					{{val: 0}, {val: 0}, {val: 0}, {val: 0}},
+				},
+			},
+			expected: false,
+		},
+		{
+			input: Grid{
+				tiles: [4][4]Tile{
+					{{val: 4}, {val: 4}, {val: 2}, {val: 4}},
+					{{val: 4}, {val: 2}, {val: 4}, {val: 2}},
+					{{val: 2}, {val: 4}, {val: 2}, {val: 4}},
+					{{val: 4}, {val: 2}, {val: 4}, {val: 2}},
+				},
+			},
+			expected: false,
+		},
+		{
+			input: Grid{
+				tiles: [4][4]Tile{
+					{{val: 2}, {val: 4}, {val: 2}, {val: 4}},
+					{{val: 4}, {val: 2}, {val: 4}, {val: 2}},
+					{{val: 2}, {val: 4}, {val: 2}, {val: 4}},
+					{{val: 4}, {val: 2}, {val: 4}, {val: 2}},
+				},
+			},
+			expected: true,
+		},
+		{
+			input: Grid{
+				tiles: [4][4]Tile{
+					{{val: 4}, {val: 16}, {val: 4}, {val: 2}},
+					{{val: 2}, {val: 32}, {val: 4}, {val: 2}},
+					{{val: 4}, {val: 8}, {val: 4}, {val: 2}},
+					{{val: 2}, {val: 8}, {val: 8}, {val: 8}},
+				},
+			},
+			expected: false,
+		},
+	} {
+		actual := tc.input.isLoss()
+		if tc.expected != actual {
+			t.Errorf("Expected:\n<%v>\nGot:\n<%v>", tc.expected, actual)
+		}
+	}
 }

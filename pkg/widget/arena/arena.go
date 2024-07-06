@@ -64,6 +64,12 @@ func (a *Arena) Move(dir Direction) {
 	}
 }
 
+// isLoss returns whether the game is lost.
+func (a *Arena) IsLoss() bool {
+	return a.grid.isLoss()
+}
+
+// render generates the game areana in string format.
 func (a *Arena) render() {
 	a.SetText(a.grid.string(inColour))
 }

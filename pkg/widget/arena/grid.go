@@ -132,6 +132,37 @@ func (g *Grid) move(dir Direction, renderFunc func()) bool {
 	return moved
 }
 
+// isLoss returns true if the grid is in a losing state (gridlocked).
+func (g Grid) isLoss() bool {
+	// False if any empty spaces exist
+	for i := 0; i < GridHeight; i++ {
+		for j := 0; j < GridWidth; j++ {
+			if g.tiles[i][j].val == emptyTile {
+				return false
+			}
+		}
+	}
+
+	// False if any similar tiles exist next to each other
+	for i := 0; i < GridHeight; i++ {
+		for j := 0; j < GridWidth-1; j++ {
+			if g.tiles[i][j].val == g.tiles[i][j+1].val {
+				return false
+			}
+		}
+	}
+	t := transpose(g.tiles)
+	for i := 0; i < GridHeight; i++ {
+		for j := 0; j < GridWidth-1; j++ {
+			if t[i][j].val == t[i][j+1].val {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
 // debug arranges the grid into a human readable debug for debugging purposes.
 func (g *Grid) debug() string {
 	var out string
