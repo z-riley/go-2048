@@ -6,7 +6,6 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -39,22 +38,22 @@ func NewScore() *Score {
 	view := tview.NewTextView().
 		SetTextAlign(tview.AlignCenter).
 		SetDynamicColors(true)
-	view.SetBackgroundColor(tcell.ColorBlack).SetBorder(true).SetTitle(" Score ")
+	view.SetBorder(true).SetTitle(" Score ")
 
-	view.SetText("\n\n 0")
+	view.SetText("\n 0")
 
 	return &Score{view}
 }
 
 // Update updates the score widget to show the value of the score variable.
 func (s *Score) Update() {
-	s.SetText(fmt.Sprintf("\n\n %d", currentScore))
+	s.SetText(fmt.Sprintf("\n %d", currentScore))
 }
 
 // Reset resets the current score.
 func (s *Score) Reset() {
 	currentScore = 0
-	s.SetText(fmt.Sprintf("\n\n %d", currentScore))
+	s.SetText(fmt.Sprintf("\n %d", currentScore))
 }
 
 type HighScore struct{ *tview.TextView }
@@ -64,7 +63,7 @@ func NewHighScore() *HighScore {
 	titleView := tview.NewTextView().
 		SetTextAlign(tview.AlignCenter).
 		SetDynamicColors(true)
-	titleView.SetBackgroundColor(tcell.ColorBlack).SetBorder(true).SetTitle(" Best ")
+	titleView.SetBorder(true).SetTitle(" Best ")
 
 	// Load high score into memory if file exists
 	file, err := os.Open(highScoreFile)
@@ -81,7 +80,7 @@ func NewHighScore() *HighScore {
 		}
 	}
 
-	titleView.SetText(fmt.Sprintf("\n\n %d", bestScore))
+	titleView.SetText(fmt.Sprintf("\n %d", bestScore))
 
 	return &HighScore{titleView}
 }
@@ -104,5 +103,5 @@ func (s *HighScore) Update() {
 			}
 		}()
 	}
-	s.SetText(fmt.Sprintf("\n\n %d", bestScore))
+	s.SetText(fmt.Sprintf("\n %d", bestScore))
 }

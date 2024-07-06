@@ -66,17 +66,17 @@ func (t *Tile) colour() string {
 	case 256:
 		return "[#7b6b61:#e8ce71]"
 	case 512:
-		return "[#7b6b61:#edc651]"
-	case 1024:
 		return "[#7b6b61:#eec744]"
+	case 1024:
+		return "[#7b6b61:#e0c041]"
 	case 2048:
 		return "[#7b6b61:#eec130]"
 	case 4096:
-		return "[#7b6b61:#ff3b3b]"
+		return "[#fafaf6:#ff3b3b]"
 	case 8192:
-		return "[#7b6b61:#ff2021]"
+		return "[#fafaf6:#ff2021]"
 	default:
-		return "[#fcf8ed:#ff0000]"
+		return "[#fafaf6:#ff0000]"
 	}
 }
 

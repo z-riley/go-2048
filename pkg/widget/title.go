@@ -1,7 +1,6 @@
 package widget
 
 import (
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -26,7 +25,6 @@ func NewTitle() *Title {
 	view := tview.NewTextView().
 		SetTextAlign(tview.AlignCenter).
 		SetDynamicColors(true)
-	view.SetBackgroundColor(tcell.ColorBlack).SetBackgroundColor(tcell.ColorBlack)
 	view.SetText(colourNormal + title2048)
 	return &Title{view}
 }

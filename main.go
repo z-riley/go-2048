@@ -23,17 +23,16 @@ func main() {
 
 	flex := tview.NewFlex().
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-			AddItem(game.currentScore, 7, 0, false).
-			AddItem(game.highScore, 7, 0, false).
-			AddItem(game.resetButton, 7, 0, false).
-			AddItem(game.exitButton, 7, 0, false),
+			AddItem(game.currentScore, 0, 1, false).
+			AddItem(game.highScore, 0, 1, false).
+			AddItem(game.resetButton, 0, 1, false).
+			AddItem(game.exitButton, 0, 1, false),
 			16, 0, false).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-			AddItem(game.title, 7, 1, false).
-			AddItem(game.arena, arena.GridHeight*arena.TileHeight+4, 0, false).
-			AddItem(tview.NewBox(), 0, 1, false),
+			AddItem(game.title, 0, 1, false).
+			AddItem(game.arena, arena.GridHeight*arena.TileHeight+4, 0, false),
 			arena.GridWidth*arena.TileWidth+4, 0, false).
-		AddItem(game.guide, 20, 1, false)
+		AddItem(game.guide, 0, 1, false)
 
 	if err := app.SetRoot(flex, true).SetFocus(flex).EnableMouse(true).Run(); err != nil {
 		panic(err)

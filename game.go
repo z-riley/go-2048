@@ -19,7 +19,7 @@ type Game struct {
 
 // UserInput is the callback given to the tview app to handle keypresses.
 func (g *Game) UserInput(event *tcell.EventKey) *tcell.EventKey {
-	switch event.Key() {
+switch event.Key() {
 	case tcell.KeyUp:
 		go g.ExecuteMove(arena.DirUp)
 	case tcell.KeyDown:
