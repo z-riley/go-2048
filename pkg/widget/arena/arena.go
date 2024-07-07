@@ -45,7 +45,7 @@ func NewArena(app *tview.Application) *Arena {
 		Mu:       sync.Mutex{},
 		grid:     newGrid(),
 	}
-	a.Reset()
+	a.render()
 
 	return &a
 }
@@ -58,6 +58,8 @@ func (a *Arena) Reset() {
 
 // Move attempts executes a move in the specified direction, spawning a new tile if appropriate.
 func (a *Arena) Move(dir Direction) {
+	a.Mu.Lock()
+	defer a.Mu.Unlock()
 	didMove := a.grid.move(dir, a.render)
 	if didMove {
 		a.grid.spawnTile()
@@ -72,6 +74,16 @@ func (a *Arena) IsLoss() bool {
 // HighestTile returns the highest tile in the arena.
 func (a *Arena) HighestTile() int {
 	return a.grid.highestTile()
+}
+
+// Save saves the current arena state to disk.
+func (a *Arena) Save() {
+	go a.grid.save()
+}
+
+// Load loads the arena state from disk.
+func (a *Arena) Load() {
+	a.grid.load()
 }
 
 // render generates the game areana in string format.

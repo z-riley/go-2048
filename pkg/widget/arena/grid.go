@@ -1,22 +1,40 @@
 package arena
 
 import (
+	"fmt"
 	"math/rand"
+	"os"
 	"reflect"
+	"strconv"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/zac460/go-2048/pkg/util"
 	"github.com/zac460/go-2048/pkg/widget"
 )
 
+const (
+	saveFile      = ".grid.bruh"
+	tileDelimiter = ";"
+)
+
 // Grid is the grid arena for the game. Position {0,0} is the top left square.
 type Grid struct {
 	tiles [GridWidth][GridHeight]Tile
+
+	savemu sync.Mutex // for saving grid to disk
 }
 
-// newGrid initialises a new grid with a random starting arrangement.
+// newGrid initialises a new grid.
 func newGrid() *Grid {
-	return &Grid{}
+	g := Grid{}
+
+	if err := g.load(); err != nil {
+		g.resetGrid()
+	}
+
+	return &g
 }
 
 // resetGrid resets the grid to a start-of-game state, spawning two '2' tiles in random locations.
@@ -32,6 +50,8 @@ func (g *Grid) resetGrid() {
 	}
 	g.tiles[tile1.x][tile1.y].val = 2
 	g.tiles[tile2.x][tile2.y].val = 2
+
+	g.save()
 }
 
 // string constructs the grid arena into a single string. Set inColour to include tview colour tags.
@@ -132,7 +152,7 @@ func (g *Grid) move(dir Direction, renderFunc func()) bool {
 }
 
 // isLoss returns true if the grid is in a losing state (gridlocked).
-func (g Grid) isLoss() bool {
+func (g *Grid) isLoss() bool {
 	// False if any empty spaces exist
 	for i := 0; i < GridHeight; i++ {
 		for j := 0; j < GridWidth; j++ {
@@ -173,6 +193,59 @@ func (g *Grid) highestTile() int {
 		}
 	}
 	return highest
+}
+
+// save saves the grid state to the disk.
+func (g *Grid) save() {
+	g.savemu.Lock()
+	defer g.savemu.Unlock()
+
+	f, err := os.OpenFile(saveFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	// Construct string to save
+	var s string
+	for i := range GridHeight {
+		for j := range GridWidth {
+			s += fmt.Sprint(g.tiles[i][j].val) + tileDelimiter
+		}
+	}
+
+	f.WriteString(s)
+}
+
+// load loads the grid from the disk.
+func (g *Grid) load() error {
+
+	// Load high score into memory if file exists
+	file, err := os.Open(saveFile)
+	if err != nil {
+		return err
+	} else {
+		defer file.Close()
+	}
+
+	b, err := os.ReadFile(saveFile)
+	if err != nil {
+		return err
+	}
+
+	tileStrings := strings.Split(string(b), tileDelimiter)
+	tileIdx := 0
+	for i := range GridHeight {
+		for j := range GridWidth {
+			val, err := strconv.Atoi(tileStrings[tileIdx])
+			if err != nil {
+				return err
+			}
+			g.tiles[i][j].val = val
+			tileIdx++
+		}
+	}
+	return nil
 }
 
 // debug arranges the grid into a human readable debug for debugging purposes.
