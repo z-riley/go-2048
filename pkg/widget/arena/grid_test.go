@@ -171,6 +171,17 @@ func TestIsLoss(t *testing.T) {
 		{
 			input: Grid{
 				tiles: [4][4]Tile{
+					{{val: 2}, {val: 4}, {val: 16}, {val: 2}},
+					{{val: 8}, {val: 32}, {val: 64}, {val: 16}},
+					{{val: 4}, {val: 16}, {val: 8}, {val: 4}},
+					{{val: 2}, {val: 8}, {val: 4}, {val: 2}},
+				},
+			},
+			expected: true,
+		},
+		{
+			input: Grid{
+				tiles: [4][4]Tile{
 					{{val: 4}, {val: 16}, {val: 4}, {val: 2}},
 					{{val: 2}, {val: 32}, {val: 4}, {val: 2}},
 					{{val: 4}, {val: 8}, {val: 4}, {val: 2}},

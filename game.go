@@ -45,13 +45,14 @@ func (g *Game) ExecuteMove(dir arena.Direction) {
 
 	if g.arena.IsLoss() {
 		g.title.Lose()
+		g.guide.Lose()
+
 	}
 
-	// FIXME: this should check for highest tile, not current score
-	if widget.CurrentScore() >= 2048 {
+	if g.arena.HighestTile() >= 2048 {
 		g.title.Win()
+		g.guide.Win()
 	}
-
 }
 
 // Reset resets the game.
@@ -60,6 +61,7 @@ func (g *Game) Reset() {
 	g.arena.Reset()
 	g.currentScore.Reset()
 	g.title.Reset()
+	g.guide.Reset()
 }
 
 // updateScore updates the displayed current score.

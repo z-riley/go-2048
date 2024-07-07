@@ -64,9 +64,14 @@ func (a *Arena) Move(dir Direction) {
 	}
 }
 
-// isLoss returns whether the game is lost.
+// IsLoss returns whether the game is lost.
 func (a *Arena) IsLoss() bool {
 	return a.grid.isLoss()
+}
+
+// HighestTile returns the highest tile in the arena.
+func (a *Arena) HighestTile() int {
+	return a.grid.highestTile()
 }
 
 // render generates the game areana in string format.

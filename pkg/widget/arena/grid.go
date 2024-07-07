@@ -119,7 +119,7 @@ func (g *Grid) move(dir Direction, renderFunc func()) bool {
 		if !movedThisTurn {
 			break
 		}
-		time.Sleep(25 * time.Millisecond)
+		time.Sleep(20 * time.Millisecond)
 	}
 
 	// Clear all of the "combined this turn" flags
@@ -161,6 +161,19 @@ func (g Grid) isLoss() bool {
 	}
 
 	return true
+}
+
+// highestTile returns the value of the highest tile on the grid.
+func (g *Grid) highestTile() int {
+	highest := 0
+	for a := range GridHeight {
+		for b := range GridWidth {
+			if g.tiles[a][b].val > highest {
+				highest = g.tiles[a][b].val
+			}
+		}
+	}
+	return highest
 }
 
 // debug arranges the grid into a human readable debug for debugging purposes.
