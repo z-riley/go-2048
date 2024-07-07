@@ -9,7 +9,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-const highScoreFile = "highscore.bruh"
+const highScoreFile = ".highscore.bruh"
 
 var (
 	bestScore    int
@@ -89,9 +89,9 @@ func NewHighScore() *HighScore {
 func (s *HighScore) Update() {
 	if currentScore > bestScore {
 		bestScore = currentScore
-		// Overwrite high score file
+		// Overwrite high score file with new score
 		go func() {
-			file, err := os.Create(highScoreFile)
+			file, err := os.OpenFile(highScoreFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 			if err != nil {
 				panic(err)
 			} else {
