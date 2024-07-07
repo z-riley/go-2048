@@ -66,7 +66,6 @@ func (g *Grid) string(inColour bool) string {
 		}
 	}
 
-	render = render[:len(render)-2] // remove final coloured newline
 	return render
 }
 
