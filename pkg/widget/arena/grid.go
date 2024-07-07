@@ -291,9 +291,9 @@ func (g *Grid) clone() *Grid {
 // is returned to complete a full move. Optional: variable to place the number of points gained by the step.
 func moveStep(g [GridWidth]Tile, dir Direction) ([GridWidth]Tile, bool) {
 
-	// Iterate in the opposite direction to the move
+	// Iterate in the same direction as the move
 	reverse := false
-	if dir == DirLeft || dir == DirUp {
+	if dir == DirRight || dir == DirDown {
 		reverse = true
 	}
 	iter := util.NewIter(len(g), reverse)
@@ -302,7 +302,7 @@ func moveStep(g [GridWidth]Tile, dir Direction) ([GridWidth]Tile, bool) {
 		// Calculate the hypothetical next position for the tile
 		i := iter.Next()
 		var newPos int
-		if reverse {
+		if !reverse {
 			newPos = i - 1
 		} else {
 			newPos = i + 1

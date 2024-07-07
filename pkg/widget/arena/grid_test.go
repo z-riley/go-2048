@@ -19,6 +19,42 @@ func TestRender(t *testing.T) {
 	fmt.Println(g.string(true))
 }
 
+func TestMove(t *testing.T) {
+	type tc struct {
+		input    Grid
+		dir      Direction
+		expected Grid
+	}
+
+	for n, tc := range []tc{
+		{
+			input: Grid{
+				tiles: [4][4]Tile{
+					{{val: 0}, {val: 2}, {val: 2}, {val: 2}},
+					{{val: 0}, {val: 0}, {val: 0}, {val: 0}},
+					{{val: 0}, {val: 0}, {val: 0}, {val: 0}},
+					{{val: 0}, {val: 0}, {val: 0}, {val: 0}},
+				},
+			},
+			dir: DirRight,
+			expected: Grid{
+				tiles: [4][4]Tile{
+					{{val: 0}, {val: 0}, {val: 2}, {val: 4}},
+					{{val: 0}, {val: 0}, {val: 0}, {val: 0}},
+					{{val: 0}, {val: 0}, {val: 0}, {val: 0}},
+					{{val: 0}, {val: 0}, {val: 0}, {val: 0}},
+				},
+			},
+		},
+	} {
+		got := tc.input.clone()
+		got.move(DirRight, func() {})
+		if !reflect.DeepEqual(tc.expected.tiles, got.tiles) {
+			t.Errorf("[%d] \nExpected:\n<%v>\nGot:\n<%v>", n, tc.expected.debug(), got.debug())
+		}
+	}
+}
+
 func TestMoveStep(t *testing.T) {
 	type tc struct {
 		input    [4]Tile
@@ -32,17 +68,23 @@ func TestMoveStep(t *testing.T) {
 		{
 			input:    [4]Tile{{val: 2}, {val: 2}, {val: 2}, {val: 2}},
 			dir:      DirLeft,
-			expected: [4]Tile{{val: 2}, {val: 2}, {val: 4, cmb: true}, {val: 0}},
+			expected: [4]Tile{{val: 4, cmb: true}, {val: 0}, {val: 2}, {val: 2}},
 			moved:    true,
 		},
 		{
-			input:    [4]Tile{{val: 2}, {val: 2}, {val: 4, cmb: true}, {val: 0}},
+			input:    [4]Tile{{val: 4, cmb: true}, {val: 0}, {val: 2}, {val: 2}},
 			dir:      DirLeft,
-			expected: [4]Tile{{val: 4, cmb: true}, {val: 0}, {val: 4, cmb: true}, {val: 0}},
+			expected: [4]Tile{{val: 4, cmb: true}, {val: 2}, {val: 0}, {val: 2}},
 			moved:    true,
 		},
 		{
-			input:    [4]Tile{{val: 4, cmb: true}, {val: 0}, {val: 4, cmb: true}, {val: 0}},
+			input:    [4]Tile{{val: 4, cmb: true}, {val: 2}, {val: 0}, {val: 2}},
+			dir:      DirLeft,
+			expected: [4]Tile{{val: 4, cmb: true}, {val: 2}, {val: 2}, {val: 0}},
+			moved:    true,
+		},
+		{
+			input:    [4]Tile{{val: 4, cmb: true}, {val: 2}, {val: 2}, {val: 0}},
 			dir:      DirLeft,
 			expected: [4]Tile{{val: 4, cmb: true}, {val: 4, cmb: true}, {val: 0}, {val: 0}},
 			moved:    true,
@@ -51,17 +93,23 @@ func TestMoveStep(t *testing.T) {
 		{
 			input:    [4]Tile{{val: 0}, {val: 4}, {val: 2}, {val: 2}},
 			dir:      DirLeft,
-			expected: [4]Tile{{val: 0}, {val: 4}, {val: 4, cmb: true}, {val: 0}},
+			expected: [4]Tile{{val: 4}, {val: 0}, {val: 2}, {val: 2}},
 			moved:    true,
 		},
 		{
-			input:    [4]Tile{{val: 0}, {val: 4}, {val: 4, cmb: true}, {val: 0}},
+			input:    [4]Tile{{val: 4}, {val: 0}, {val: 2}, {val: 2}},
 			dir:      DirLeft,
-			expected: [4]Tile{{val: 4}, {val: 0}, {val: 4, cmb: true}, {val: 0}},
+			expected: [4]Tile{{val: 4}, {val: 2}, {val: 0}, {val: 2}},
 			moved:    true,
 		},
 		{
-			input:    [4]Tile{{val: 4}, {val: 0}, {val: 4, cmb: true}, {val: 0}},
+			input:    [4]Tile{{val: 4}, {val: 2}, {val: 0}, {val: 2}},
+			dir:      DirLeft,
+			expected: [4]Tile{{val: 4}, {val: 2}, {val: 2}, {val: 0}},
+			moved:    true,
+		},
+		{
+			input:    [4]Tile{{val: 4}, {val: 2}, {val: 2}, {val: 0}},
 			dir:      DirLeft,
 			expected: [4]Tile{{val: 4}, {val: 4, cmb: true}, {val: 0}, {val: 0}},
 			moved:    true,
@@ -72,30 +120,42 @@ func TestMoveStep(t *testing.T) {
 			expected: [4]Tile{{val: 4}, {val: 4, cmb: true}, {val: 0}, {val: 0}},
 			moved:    false,
 		},
-		// 4 0 0 0 --[left]--> 4 0 0 0
-		{
-			input:    [4]Tile{{val: 4}, {val: 0}, {val: 0}, {val: 0}},
-			dir:      DirLeft,
-			expected: [4]Tile{{val: 4}, {val: 0}, {val: 0}, {val: 0}},
-			moved:    false,
-		},
-		// 2 2 2 2 --[right]--> 4 4 0 0
+		// // 2 2 2 2 --[right]--> 4 4 0 0
 		{
 			input:    [4]Tile{{val: 2}, {val: 2}, {val: 2}, {val: 2}},
 			dir:      DirRight,
-			expected: [4]Tile{{val: 0}, {val: 4, cmb: true}, {val: 2}, {val: 2}},
+			expected: [4]Tile{{val: 2}, {val: 2}, {val: 0}, {val: 4, cmb: true}},
 			moved:    true,
 		},
 		{
-			input:    [4]Tile{{val: 0}, {val: 4, cmb: true}, {val: 2}, {val: 2}},
+			input:    [4]Tile{{val: 2}, {val: 2}, {val: 0}, {val: 4, cmb: true}},
 			dir:      DirRight,
-			expected: [4]Tile{{val: 0}, {val: 4, cmb: true}, {val: 0}, {val: 4, cmb: true}},
+			expected: [4]Tile{{val: 2}, {val: 0}, {val: 2}, {val: 4, cmb: true}},
 			moved:    true,
 		},
 		{
-			input:    [4]Tile{{val: 0}, {val: 4, cmb: true}, {val: 0}, {val: 4, cmb: true}},
+			input:    [4]Tile{{val: 2}, {val: 0}, {val: 2}, {val: 4, cmb: true}},
+			dir:      DirRight,
+			expected: [4]Tile{{val: 0}, {val: 2}, {val: 2}, {val: 4, cmb: true}},
+			moved:    true,
+		},
+		{
+			input:    [4]Tile{{val: 0}, {val: 2}, {val: 2}, {val: 4, cmb: true}},
 			dir:      DirRight,
 			expected: [4]Tile{{val: 0}, {val: 0}, {val: 4, cmb: true}, {val: 4, cmb: true}},
+			moved:    true,
+		},
+		// // 0 2 2 2 --[right]--> 0 0 2 4
+		{
+			input:    [4]Tile{{val: 0}, {val: 2}, {val: 2}, {val: 2}},
+			dir:      DirRight,
+			expected: [4]Tile{{val: 0}, {val: 2}, {val: 0}, {val: 4, cmb: true}},
+			moved:    true,
+		},
+		{
+			input:    [4]Tile{{val: 0}, {val: 2}, {val: 0}, {val: 4, cmb: true}},
+			dir:      DirRight,
+			expected: [4]Tile{{val: 0}, {val: 0}, {val: 2}, {val: 4, cmb: true}},
 			moved:    true,
 		},
 	} {
