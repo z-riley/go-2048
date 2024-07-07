@@ -23,12 +23,15 @@ const (
 type Grid struct {
 	tiles [GridWidth][GridHeight]Tile
 
-	savemu sync.Mutex // for saving grid to disk
+	savemu *sync.Mutex // for saving grid to disk
 }
 
 // newGrid initialises a new grid.
 func newGrid() *Grid {
-	g := Grid{}
+	g := Grid{
+		tiles:  [4][4]Tile{},
+		savemu: &sync.Mutex{},
+	}
 
 	if err := g.load(); err != nil {
 		g.resetGrid()
