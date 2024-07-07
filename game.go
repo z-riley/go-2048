@@ -40,7 +40,7 @@ func (g *Game) ExecuteMove(dir arena.Direction) {
 	g.arena.Move(dir)
 	g.arena.Save()
 
-	// Update scoresd
+	// Update scores
 	g.currentScore.Update()
 	g.highScore.Update()
 
