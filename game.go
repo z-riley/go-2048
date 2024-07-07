@@ -48,12 +48,13 @@ func (g *Game) ExecuteMove(dir arena.Direction) {
 	if g.arena.IsLoss() {
 		g.title.Lose()
 		g.guide.Lose()
-
 	}
 	if g.arena.HighestTile() >= 2048 {
 		g.title.Win()
 		g.guide.Win()
 	}
+
+	g.arena.Render()
 }
 
 // Reset resets the game.

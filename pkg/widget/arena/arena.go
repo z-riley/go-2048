@@ -45,7 +45,7 @@ func NewArena(app *tview.Application) *Arena {
 		Mu:       sync.Mutex{},
 		grid:     newGrid(),
 	}
-	a.render()
+	a.Render()
 
 	return &a
 }
@@ -53,14 +53,14 @@ func NewArena(app *tview.Application) *Arena {
 // ResetGrid resets the arena.
 func (a *Arena) Reset() {
 	a.grid.resetGrid()
-	a.render()
+	a.Render()
 }
 
 // Move attempts executes a move in the specified direction, spawning a new tile if appropriate.
 func (a *Arena) Move(dir Direction) {
 	a.Mu.Lock()
 	defer a.Mu.Unlock()
-	didMove := a.grid.move(dir, a.render)
+	didMove := a.grid.move(dir, a.Render)
 	if didMove {
 		a.grid.spawnTile()
 	}
@@ -81,12 +81,17 @@ func (a *Arena) Save() {
 	go a.grid.save()
 }
 
+// WipeSave removes the game's save file
+func (a *Arena) WipeSave() {
+	go a.grid.wipeSave()
+}
+
 // Load loads the arena state from disk.
 func (a *Arena) Load() {
 	a.grid.load()
 }
 
-// render generates the game areana in string format.
-func (a *Arena) render() {
+// Render generates the game areana in string format.
+func (a *Arena) Render() {
 	a.SetText(a.grid.string(inColour))
 }

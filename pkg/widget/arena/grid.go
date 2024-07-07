@@ -32,6 +32,11 @@ func newGrid() *Grid {
 
 	if err := g.load(); err != nil {
 		g.resetGrid()
+	} else {
+		// Reset loaded grid if it's a previously lost game
+		if g.isLoss() {
+			g.resetGrid()
+		}
 	}
 
 	return &g
@@ -217,7 +222,8 @@ func (g *Grid) save() {
 	f.WriteString(s)
 }
 
-// load loads the grid from the disk.
+// load loads the grid from the disk. Returns error if save file doesn't
+// exist or is corrupt.
 func (g *Grid) load() error {
 
 	// Load high score into memory if file exists
@@ -246,6 +252,13 @@ func (g *Grid) load() error {
 		}
 	}
 	return nil
+}
+
+// wipeSave deletes the save file.
+func (g *Grid) wipeSave() {
+	if err := os.Remove(saveFile); err != nil {
+		panic(err)
+	}
 }
 
 // debug arranges the grid into a human readable debug for debugging purposes.
