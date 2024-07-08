@@ -159,6 +159,61 @@ func (g *Grid) move(dir Direction, renderFunc func()) bool {
 	return moved
 }
 
+// moveStep executes one part of the a move. Call multiple times until false
+// is returned to complete a full move. Optional: variable to place the number of points gained by the step.
+func moveStep(g [GridWidth]Tile, dir Direction) ([GridWidth]Tile, bool) {
+
+	// Iterate in the same direction as the move
+	reverse := false
+	if dir == DirRight || dir == DirDown {
+		reverse = true
+	}
+	iter := util.NewIter(len(g), reverse)
+
+	for iter.HasNext() {
+		// Calculate the hypothetical next position for the tile
+		i := iter.Next()
+		var newPos int
+		if !reverse {
+			newPos = i - 1
+		} else {
+			newPos = i + 1
+		}
+
+		// Skip if new position is not valid (on the grid)
+		if newPos < 0 || newPos >= len(g) {
+			continue
+		}
+
+		// Skip if source tile is empty
+		if g[i].val == emptyTile {
+			continue
+		}
+
+		// Combine if similar tile exists at destination and end turn
+		alreadyCombined := g[i].cmb || g[newPos].cmb
+		if g[newPos].val == g[i].val && !alreadyCombined {
+			g[newPos].val += g[i].val // update the new location
+			g[newPos].cmb = true
+			widget.AddToCurrentScore(g[newPos].val)
+			g[i].val = emptyTile // clear the old location
+			return g, true
+
+		} else if g[newPos].val != emptyTile {
+			// Move blocked by another tile
+			continue
+		}
+
+		// Destination empty; move tile and end turn
+		if g[newPos].val == emptyTile {
+			g[newPos] = g[i]
+			g[i] = Tile{}
+			return g, true
+		}
+	}
+	return g, false
+}
+
 // isLoss returns true if the grid is in a losing state (gridlocked).
 func (g *Grid) isLoss() bool {
 	// False if any empty spaces exist
@@ -285,61 +340,6 @@ func (g *Grid) clone() *Grid {
 		}
 	}
 	return newGrid
-}
-
-// moveStep executes one part of the a move. Call multiple times until false
-// is returned to complete a full move. Optional: variable to place the number of points gained by the step.
-func moveStep(g [GridWidth]Tile, dir Direction) ([GridWidth]Tile, bool) {
-
-	// Iterate in the same direction as the move
-	reverse := false
-	if dir == DirRight || dir == DirDown {
-		reverse = true
-	}
-	iter := util.NewIter(len(g), reverse)
-
-	for iter.HasNext() {
-		// Calculate the hypothetical next position for the tile
-		i := iter.Next()
-		var newPos int
-		if !reverse {
-			newPos = i - 1
-		} else {
-			newPos = i + 1
-		}
-
-		// Skip if new position is not valid (on the grid)
-		if newPos < 0 || newPos >= len(g) {
-			continue
-		}
-
-		// Skip if source tile is empty
-		if g[i].val == emptyTile {
-			continue
-		}
-
-		// Combine if similar tile exists at destination and end turn
-		alreadyCombined := g[i].cmb || g[newPos].cmb
-		if g[newPos].val == g[i].val && !alreadyCombined {
-			g[newPos].val += g[i].val // update the new location
-			g[newPos].cmb = true
-			widget.AddToCurrentScore(g[newPos].val)
-			g[i].val = emptyTile // clear the old location
-			return g, true
-
-		} else if g[newPos].val != emptyTile {
-			// Move blocked by another tile
-			continue
-		}
-
-		// Destination empty; move tile and end turn
-		if g[newPos].val == emptyTile {
-			g[newPos] = g[i]
-			g[i] = Tile{}
-			return g, true
-		}
-	}
-	return g, false
 }
 
 // transpose returns a tranposed version of the grid.
