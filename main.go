@@ -32,7 +32,7 @@ func main() {
 			AddItem(game.title, 0, 1, false).
 			AddItem(game.arena, arena.GridHeight*arena.TileHeight+4, 0, false),
 			arena.GridWidth*arena.TileWidth+4, 0, false).
-		AddItem(game.guide, 0, 1, false)
+		AddItem(game.guide, 20, 1, false)
 
 	if err := app.SetRoot(flex, true).SetFocus(flex).EnableMouse(true).Run(); err != nil {
 		panic(err)

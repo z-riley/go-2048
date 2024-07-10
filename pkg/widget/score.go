@@ -1,15 +1,16 @@
 package widget
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"strconv"
 
 	"github.com/rivo/tview"
+	"github.com/zac460/go-2048/pkg/store"
 )
 
-const highScoreFile = ".highscore.bruh"
+const (
+	currentScoreLabel = "currentScore"
+	highScoreLabel    = "highScore"
+)
 
 var (
 	bestScore    int
@@ -40,7 +41,17 @@ func NewScore() *Score {
 		SetDynamicColors(true)
 	view.SetBorder(true).SetTitle(" Score ")
 
-	view.SetText("\n 0")
+	ss, err := store.ReadSaveState()
+	if err != nil {
+		panic(err)
+	}
+	var ok bool
+	currentScore, ok = ss[currentScoreLabel].(int)
+	if !ok {
+		currentScore = 0
+	}
+
+	view.SetText(fmt.Sprintf("\n %d", currentScore))
 
 	return &Score{view}
 }
@@ -48,11 +59,19 @@ func NewScore() *Score {
 // Update updates the score widget to show the value of the score variable.
 func (s *Score) Update() {
 	s.SetText(fmt.Sprintf("\n %d", currentScore))
+
+	// Overwrite high score file with new score
+	go func() {
+		store.SaveKeyVal(currentScoreLabel, currentScore)
+	}()
 }
 
 // Reset resets the current score.
 func (s *Score) Reset() {
 	currentScore = 0
+	go func() {
+		store.SaveKeyVal(currentScoreLabel, currentScore)
+	}()
 	s.SetText(fmt.Sprintf("\n %d", currentScore))
 }
 
@@ -60,29 +79,24 @@ type HighScore struct{ *tview.TextView }
 
 // NewScore returns the current score widget.
 func NewHighScore() *HighScore {
-	titleView := tview.NewTextView().
+	view := tview.NewTextView().
 		SetTextAlign(tview.AlignCenter).
 		SetDynamicColors(true)
-	titleView.SetBorder(true).SetTitle(" Best ")
+	view.SetBorder(true).SetTitle(" Best ")
 
-	// Load high score into memory if file exists
-	file, err := os.Open(highScoreFile)
+	ss, err := store.ReadSaveState()
 	if err != nil {
+		panic(err)
+	}
+	var ok bool
+	bestScore, ok = ss[highScoreLabel].(int)
+	if !ok {
 		bestScore = 0
-	} else {
-		defer file.Close()
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			bestScore, err = strconv.Atoi(scanner.Text())
-			if err != nil {
-				panic(err)
-			}
-		}
 	}
 
-	titleView.SetText(fmt.Sprintf("\n %d", bestScore))
+	view.SetText(fmt.Sprintf("\n %d", bestScore))
 
-	return &HighScore{titleView}
+	return &HighScore{view}
 }
 
 // Update updates the high score widget.
@@ -91,16 +105,7 @@ func (s *HighScore) Update() {
 		bestScore = currentScore
 		// Overwrite high score file with new score
 		go func() {
-			file, err := os.OpenFile(highScoreFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-			if err != nil {
-				panic(err)
-			} else {
-				defer file.Close()
-			}
-			_, err = file.WriteString(fmt.Sprint(currentScore))
-			if err != nil {
-				panic(err)
-			}
+			store.SaveKeyVal(highScoreLabel, bestScore)
 		}()
 	}
 	s.SetText(fmt.Sprintf("\n %d", bestScore))

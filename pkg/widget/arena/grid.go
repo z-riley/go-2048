@@ -7,14 +7,15 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
+	"github.com/zac460/go-2048/pkg/store"
 	"github.com/zac460/go-2048/pkg/util"
 	"github.com/zac460/go-2048/pkg/widget"
 )
 
 const (
+	gridSaveLabel = "grid"
 	saveFile      = ".grid.bruh"
 	tileDelimiter = ";"
 )
@@ -22,16 +23,11 @@ const (
 // Grid is the grid arena for the game. Position {0,0} is the top left square.
 type Grid struct {
 	tiles [GridWidth][GridHeight]Tile
-
-	savemu *sync.Mutex // for saving grid to disk
 }
 
 // newGrid initialises a new grid.
 func newGrid() *Grid {
-	g := Grid{
-		tiles:  [4][4]Tile{},
-		savemu: &sync.Mutex{},
-	}
+	g := Grid{tiles: [4][4]Tile{}}
 
 	if err := g.load(); err != nil {
 		g.resetGrid()
@@ -260,15 +256,6 @@ func (g *Grid) highestTile() int {
 
 // save saves the grid state to the disk.
 func (g *Grid) save() {
-	g.savemu.Lock()
-	defer g.savemu.Unlock()
-
-	f, err := os.OpenFile(saveFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
 	// Construct string to save
 	var s string
 	for i := range GridHeight {
@@ -277,27 +264,30 @@ func (g *Grid) save() {
 		}
 	}
 
-	f.WriteString(s)
+	go func() {
+		err := store.SaveKeyVal(gridSaveLabel, s)
+		if err != nil {
+			panic(err)
+		}
+	}()
 }
 
 // load loads the grid from the disk. Returns error if save file doesn't
 // exist or is corrupt.
 func (g *Grid) load() error {
 
-	// Load high score into memory if file exists
-	file, err := os.Open(saveFile)
+	ss, err := store.ReadSaveState()
 	if err != nil {
-		return err
-	} else {
-		defer file.Close()
+		panic(err)
+	}
+	var gString string
+	gString, ok := ss[gridSaveLabel].(string)
+	if !ok {
+		gString = ""
 	}
 
-	b, err := os.ReadFile(saveFile)
-	if err != nil {
-		return err
-	}
-
-	tileStrings := strings.Split(string(b), tileDelimiter)
+	// Construct grid from saved data
+	tileStrings := strings.Split(gString, tileDelimiter)
 	tileIdx := 0
 	for i := range GridHeight {
 		for j := range GridWidth {
