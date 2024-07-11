@@ -3,7 +3,6 @@ package arena
 import (
 	"fmt"
 	"math/rand"
-	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -302,13 +301,6 @@ func (g *Grid) load() error {
 	return nil
 }
 
-// wipeSave deletes the save file.
-func (g *Grid) wipeSave() {
-	if err := os.Remove(saveFile); err != nil {
-		panic(err)
-	}
-}
-
 // debug arranges the grid into a human readable debug for debugging purposes.
 func (g *Grid) debug() string {
 	var out string
@@ -332,7 +324,7 @@ func (g *Grid) clone() *Grid {
 	return newGrid
 }
 
-// transpose returns a tranposed version of the grid.
+// transpose returns a transposed version of the grid.
 func transpose(matrix [GridWidth][GridHeight]Tile) [GridHeight][GridWidth]Tile {
 	var transposed [GridHeight][GridWidth]Tile
 	for i := 0; i < GridWidth; i++ {

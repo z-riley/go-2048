@@ -36,25 +36,19 @@ func (g *Game) UserInput(event *tcell.EventKey) *tcell.EventKey {
 
 // ExecuteMove carries out a move (up, down, left, right) in the given direction.
 func (g *Game) ExecuteMove(dir arena.Direction) {
-	// Mutate arena
-	g.arena.Move(dir)
-	g.arena.Save()
+	g.arena.Update(dir)
 
-	// Update scores
 	g.currentScore.Update()
 	g.highScore.Update()
 
-	// Check game state
 	if g.arena.IsLoss() {
 		g.title.Lose()
 		g.guide.Lose()
 	}
-	if g.arena.HighestTile() >= 2048 {
+	if g.arena.IsWin() {
 		g.title.Win()
 		g.guide.Win()
 	}
-
-	g.arena.Render()
 }
 
 // Reset resets the game.

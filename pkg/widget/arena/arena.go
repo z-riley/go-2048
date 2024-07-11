@@ -50,14 +50,20 @@ func NewArena(app *tview.Application) *Arena {
 	return &a
 }
 
+// Update updates the arena after the user makes a move in the game.
+func (a *Arena) Update(dir Direction) {
+	a.move(dir)
+	go a.grid.save()
+}
+
 // ResetGrid resets the arena.
 func (a *Arena) Reset() {
 	a.grid.resetGrid()
 	a.Render()
 }
 
-// Move attempts executes a move in the specified direction, spawning a new tile if appropriate.
-func (a *Arena) Move(dir Direction) {
+// move attempts executes a move in the specified direction, spawning a new tile if appropriate.
+func (a *Arena) move(dir Direction) {
 	a.Mu.Lock()
 	defer a.Mu.Unlock()
 	didMove := a.grid.move(dir, a.Render)
@@ -66,32 +72,17 @@ func (a *Arena) Move(dir Direction) {
 	}
 }
 
-// IsLoss returns whether the game is lost.
+// Render displays the latest grid in the arena.
+func (a *Arena) Render() {
+	a.SetText(a.grid.string(inColour))
+}
+
+// IsLoss returns whether the game is in a losing state.
 func (a *Arena) IsLoss() bool {
 	return a.grid.isLoss()
 }
 
-// HighestTile returns the highest tile in the arena.
-func (a *Arena) HighestTile() int {
-	return a.grid.highestTile()
-}
-
-// Save saves the current arena state to disk.
-func (a *Arena) Save() {
-	go a.grid.save()
-}
-
-// WipeSave removes the game's save file
-func (a *Arena) WipeSave() {
-	go a.grid.wipeSave()
-}
-
-// Load loads the arena state from disk.
-func (a *Arena) Load() {
-	a.grid.load()
-}
-
-// Render generates the game areana in string format.
-func (a *Arena) Render() {
-	a.SetText(a.grid.string(inColour))
+// IsWin returns whether the game is in a winning state.
+func (a *Arena) IsWin() bool {
+	return a.grid.highestTile() >= 2048
 }

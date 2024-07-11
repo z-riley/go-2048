@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-const filename = ".store.bruh"
+const filename = ".save.bruh"
 
 type saveState map[string]any
 
