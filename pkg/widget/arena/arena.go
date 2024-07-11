@@ -70,6 +70,7 @@ func (a *Arena) move(dir Direction) {
 	if didMove {
 		a.grid.spawnTile()
 	}
+	a.Render()
 }
 
 // Render displays the latest grid in the arena.
