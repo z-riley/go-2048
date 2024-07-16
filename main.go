@@ -2,27 +2,16 @@ package main
 
 import (
 	"github.com/rivo/tview"
-	"github.com/zac460/go-2048/pkg/widget"
 	"github.com/zac460/go-2048/pkg/widget/arena"
 )
 
 func main() {
 	app := tview.NewApplication()
-
-	game := Game{
-		currentScore: widget.NewScore(),
-		highScore:    widget.NewHighScore(),
-		title:        widget.NewTitle(),
-		arena:        arena.NewArena(app),
-		guide:        widget.NewGuide(),
-	}
-	game.resetButton = widget.NewResetButton(game.Reset)
-	game.exitButton = widget.NewExitButton(app.Stop)
-
-	app.SetInputCapture(game.UserInput)
+	game := NewGame(app)
 
 	flex := tview.NewFlex().
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
+			AddItem(game.timer, 0, 1, false).
 			AddItem(game.currentScore, 0, 1, false).
 			AddItem(game.highScore, 0, 1, false).
 			AddItem(game.resetButton, 0, 1, false).
