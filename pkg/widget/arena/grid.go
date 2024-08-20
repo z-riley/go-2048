@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/zac460/go-2048/pkg/store"
-	"github.com/zac460/go-2048/pkg/util"
-	"github.com/zac460/go-2048/pkg/widget"
+	"github.com/z-riley/go-2048/pkg/store"
+	"github.com/z-riley/go-2048/pkg/util"
+	"github.com/z-riley/go-2048/pkg/widget"
 )
 
 const (

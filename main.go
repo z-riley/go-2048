@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/rivo/tview"
-	"github.com/zac460/go-2048/pkg/widget/arena"
+	"github.com/z-riley/go-2048/pkg/widget/arena"
 )
 
 func main() {

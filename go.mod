@@ -1,4 +1,4 @@
-module github.com/zac460/go-2048
+module github.com/z-riley/go-2048
 
 go 1.22.2
 

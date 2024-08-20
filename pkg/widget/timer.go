@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/rivo/tview"
-	"github.com/zac460/go-2048/pkg/store"
+	"github.com/z-riley/go-2048/pkg/store"
 )
 
 const currentTimeLabel = "currentTime"

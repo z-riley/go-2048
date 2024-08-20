@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
-	"github.com/zac460/go-2048/pkg/widget"
-	"github.com/zac460/go-2048/pkg/widget/arena"
+	"github.com/z-riley/go-2048/pkg/widget"
+	"github.com/z-riley/go-2048/pkg/widget/arena"
 )
 
 type Game struct {
