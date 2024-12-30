@@ -99,6 +99,15 @@ func NewHighScore() *HighScore {
 	return &HighScore{view}
 }
 
+// Reset resets the high score.
+func (s *HighScore) Reset() {
+	bestScore = 0
+	go func() {
+		store.SaveKeyVal(highScoreLabel, bestScore)
+	}()
+	s.SetText(fmt.Sprintf("\n %d", bestScore))
+}
+
 // Update updates the high score widget.
 func (s *HighScore) Update() {
 	if currentScore > bestScore {

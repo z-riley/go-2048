@@ -141,7 +141,7 @@ func (g *Grid) move(dir Direction, renderFunc func()) bool {
 		if !movedThisTurn {
 			break
 		}
-		time.Sleep(20 * time.Millisecond)
+		time.Sleep(30 * time.Millisecond)
 	}
 
 	// Clear all of the "combined this turn" flags
